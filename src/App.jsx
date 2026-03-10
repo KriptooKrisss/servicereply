@@ -3,13 +3,13 @@ import { useState, useEffect, createContext, useContext } from "react";
 const themes = {
   dark: {
     bg: "#08080d", bgLight: "#0e0e16", card: "#12121c",
-    accent: "#c9a24e", accentLight: "#dbb96a", accentGlow: "rgba(201,162,78,0.12)",
+    accent: "#e94560", accentLight: "#ff6b81", accentGlow: "rgba(233,69,96,0.12)",
     text: "#ede9e0", textMuted: "#7a756d", border: "#1e1e2a",
     navBg: "rgba(8,8,13,0.92)", inputBg: "#0e0e16",
   },
   light: {
     bg: "#f5f2ed", bgLight: "#ebe7e0", card: "#ffffff",
-    accent: "#b8892e", accentLight: "#c99a3f", accentGlow: "rgba(184,137,46,0.1)",
+    accent: "#d63651", accentLight: "#e94560", accentGlow: "rgba(214,54,81,0.1)",
     text: "#1a1a1a", textMuted: "#6b6560", border: "#ddd8d0",
     navBg: "rgba(245,242,237,0.95)", inputBg: "#f0ece5",
   },
@@ -37,6 +37,8 @@ function FadeIn({ children, delay = 0, style = {} }) {
     </div>
   );
 }
+
+const DASHBOARD_URL = "https://app.servicereply.de";
 
 function Nav() {
   const { C, toggle, isDark } = useTheme();
@@ -76,10 +78,10 @@ function Nav() {
               {menuOpen ? "✕" : "☰"}
             </div>
           ) : (
-            <a href="#start" style={{
+            <a href={DASHBOARD_URL} style={{
               padding: "10px 24px", borderRadius: 8,
               background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`,
-              color: "#0a0a0f", textDecoration: "none", fontSize: 13, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+              color: "#fff", textDecoration: "none", fontSize: 13, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
             }}>Jetzt starten</a>
           )}
         </div>
@@ -98,10 +100,10 @@ function Nav() {
               {item}
             </a>
           ))}
-          <a href="#start" onClick={() => setMenuOpen(false)} style={{
+          <a href={DASHBOARD_URL} onClick={() => setMenuOpen(false)} style={{
             padding: "12px 0", borderRadius: 8, textAlign: "center",
             background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`,
-            color: "#0a0a0f", textDecoration: "none", fontSize: 14, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+            color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
           }}>Jetzt starten</a>
         </div>
       )}
@@ -121,7 +123,7 @@ function Hero() {
       <div style={{
         position: "absolute", top: "20%", left: "50%", transform: "translate(-50%,-50%)",
         width: mob ? 300 : 600, height: mob ? 300 : 600, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(201,162,78,0.08) 0%, transparent 70%)",
+        background: "radial-gradient(circle, rgba(233,69,96,0.08) 0%, transparent 70%)",
         filter: "blur(60px)", pointerEvents: "none",
       }} />
       <div style={{ position: "relative", maxWidth: 720 }}>
@@ -131,7 +133,7 @@ function Hero() {
             background: C.accentGlow, border: `1px solid ${C.accent}30`,
             fontSize: mob ? 11 : 13, color: C.accent, fontWeight: 600,
             fontFamily: "'DM Sans', sans-serif", letterSpacing: "0.05em", marginBottom: mob ? 20 : 28,
-          }}>✨ Dein KI-Assistent für WhatsApp</div>
+          }}>✨ Dein KI-Assistent fuer WhatsApp</div>
         </FadeIn>
         <FadeIn delay={400}>
           <h1 style={{
@@ -148,15 +150,15 @@ function Hero() {
             maxWidth: 540, margin: "0 auto", marginBottom: mob ? 28 : 40,
             fontFamily: "'DM Sans', sans-serif", padding: mob ? "0 8px" : 0,
           }}>
-            ServiceReply übernimmt deine WhatsApp-Kommunikation — beantwortet Fragen, vereinbart Termine und informiert dich in Echtzeit. 24/7, professionell und diskret.
+            ServiceReply uebernimmt deine WhatsApp-Kommunikation — beantwortet Fragen, vereinbart Termine und informiert dich in Echtzeit. 24/7, professionell und diskret.
           </p>
         </FadeIn>
         <FadeIn delay={800}>
           <div style={{ display: "flex", gap: mob ? 10 : 16, justifyContent: "center", flexDirection: mob ? "column" : "row", padding: mob ? "0 20px" : 0 }}>
-            <a href="#start" style={{
+            <a href={DASHBOARD_URL} style={{
               padding: mob ? "14px 0" : "16px 40px", borderRadius: 10, textAlign: "center",
               background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`,
-              color: "#0a0a0f", textDecoration: "none", fontSize: mob ? 15 : 16, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+              color: "#fff", textDecoration: "none", fontSize: mob ? 15 : 16, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
             }}>Kostenlos testen</a>
             <a href="#sogehts" style={{
               padding: mob ? "14px 0" : "16px 40px", borderRadius: 10, textAlign: "center",
@@ -185,11 +187,11 @@ function Features() {
   const mob = useIsMobile();
   const features = [
     { icon: "💬", title: "Automatische Antworten", desc: "Dein Bot beantwortet Kundenanfragen sofort — Preise, Zeiten, Services." },
-    { icon: "📅", title: "Termin-Management", desc: "Kunden buchen Termine direkt über WhatsApp. Du bestätigst mit einem Klick." },
+    { icon: "📅", title: "Termin-Management", desc: "Kunden buchen Termine direkt ueber WhatsApp. Du bestaetigst mit einem Klick." },
     { icon: "🔔", title: "Sofort-Benachrichtigung", desc: "Bei jedem neuen Termin wirst du sofort informiert." },
-    { icon: "⏸️", title: "Volle Kontrolle", desc: "Pausiere den Bot jederzeit und übernimm selbst." },
-    { icon: "🎨", title: "Dein Stil", desc: "Passe den Kommunikationsstil an — flirty, professionell oder zurückhaltend." },
-    { icon: "🔒", title: "100% Diskret", desc: "Deine Daten bleiben bei dir. Keine Weitergabe." },
+    { icon: "📊", title: "Buchhaltung & Uebersicht", desc: "Behalte den Ueberblick: Alle Termine, Kunden und Umsaetze auf einen Blick in deinem Dashboard." },
+    { icon: "🎨", title: "Dein Stil", desc: "Passe den Kommunikationsstil an — flirty, professionell oder zurueckhaltend." },
+    { icon: "🔒", title: "100% Diskret", desc: "Deine Daten bleiben bei dir. Keine Weitergabe an Dritte." },
   ];
 
   return (
@@ -221,7 +223,7 @@ function HowItWorks() {
   const steps = [
     { num: "01", title: "Registriere dich", desc: "Erstelle dein Konto in 2 Minuten. Gib deine Daten ein — Name, Preise, Zeiten, Services." },
     { num: "02", title: "Verbinde WhatsApp", desc: "Scanne einen QR-Code und dein Bot ist sofort aktiv." },
-    { num: "03", title: "Lehne dich zurück", desc: "Dein Bot übernimmt. Du wirst bei Terminen benachrichtigt und bestätigst mit #da oder #ne." },
+    { num: "03", title: "Lehne dich zurueck", desc: "Dein Bot uebernimmt. Du wirst bei Terminen benachrichtigt und bestaetigst mit einem Klick." },
   ];
 
   return (
@@ -273,10 +275,13 @@ function Pricing() {
       <FadeIn>
         <div style={{ textAlign: "center", marginBottom: mob ? 32 : 48 }}>
           <div style={{ fontSize: 13, color: C.accent, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 12, fontFamily: "'DM Sans', sans-serif" }}>Preise</div>
-          <h2 style={{ fontSize: mob ? 28 : 42, fontWeight: 700, color: C.text, marginBottom: 16, fontFamily: "'Playfair Display', Georgia, serif" }}>Einfach & transparent</h2>
-          <div style={{ display: "inline-flex", borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}` }}>
-            <button onClick={() => setAnnual(false)} style={{ padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: !annual ? C.accent : "transparent", color: !annual ? "#0a0a0f" : C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>Monatlich</button>
-            <button onClick={() => setAnnual(true)} style={{ padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: annual ? C.accent : "transparent", color: annual ? "#0a0a0f" : C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>Jährlich (-20%)</button>
+          <h2 style={{ fontSize: mob ? 28 : 42, fontWeight: 700, color: C.text, marginBottom: 8, fontFamily: "'Playfair Display', Georgia, serif" }}>Einfach & transparent</h2>
+          <div style={{ display: "inline-block", padding: "6px 16px", borderRadius: 20, background: "rgba(233,69,96,0.15)", border: "1px solid rgba(233,69,96,0.3)", fontSize: 12, color: C.accent, fontWeight: 600, fontFamily: "'DM Sans', sans-serif", marginBottom: 20 }}>BETA-PREISE — Limitiertes Angebot</div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ display: "inline-flex", borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}` }}>
+              <button onClick={() => setAnnual(false)} style={{ padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: !annual ? C.accent : "transparent", color: !annual ? "#fff" : C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>Monatlich</button>
+              <button onClick={() => setAnnual(true)} style={{ padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: annual ? C.accent : "transparent", color: annual ? "#fff" : C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>Jaehrlich (-20%)</button>
+            </div>
           </div>
         </div>
       </FadeIn>
@@ -285,39 +290,39 @@ function Pricing() {
           <div style={{ padding: mob ? 28 : 40, borderRadius: 16, background: C.card, border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 13, color: C.textMuted, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Starter</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
-              <span style={{ fontSize: 40, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', Georgia, serif" }}>{annual ? "39" : "49"}</span>
+              <span style={{ fontSize: 40, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', Georgia, serif" }}>{annual ? "19" : "24"}</span>
+              <span style={{ fontSize: 16, color: C.textMuted }}>€/Monat</span>
+            </div>
+            {annual && <div style={{ fontSize: 12, color: C.accent, marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Spare 60€ pro Jahr</div>}
+            <div style={{ width: "100%", height: 1, background: C.border, margin: "12px 0" }} />
+            {["WhatsApp Bot 24/7", "Automatische Antworten", "Termin-Management", "Sofort-Benachrichtigungen", "Buchhaltung & Uebersicht", "1 WhatsApp-Nummer"].map((f, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", fontSize: 14, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
+                <span style={{ color: C.accent }}>✓</span> {f}
+              </div>
+            ))}
+            <a href={DASHBOARD_URL} style={{ display: "block", width: "100%", marginTop: 20, padding: "13px 0", borderRadius: 10, background: "transparent", border: `1px solid ${C.accent}`, color: C.accent, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>Jetzt starten</a>
+          </div>
+          <div style={{ padding: mob ? 28 : 40, borderRadius: 16, position: "relative", background: C.card, border: `2px solid ${C.accent}50`, boxShadow: `0 0 60px ${C.accent}10` }}>
+            <div style={{ position: "absolute", top: -12, right: 24, padding: "4px 14px", borderRadius: 20, background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`, color: "#fff", fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>EMPFOHLEN</div>
+            <div style={{ fontSize: 13, color: C.accent, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Pro</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
+              <span style={{ fontSize: 40, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', Georgia, serif" }}>{annual ? "35" : "45"}</span>
               <span style={{ fontSize: 16, color: C.textMuted }}>€/Monat</span>
             </div>
             {annual && <div style={{ fontSize: 12, color: C.accent, marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Spare 120€ pro Jahr</div>}
             <div style={{ width: "100%", height: 1, background: C.border, margin: "12px 0" }} />
-            {["WhatsApp Bot", "Automatische Antworten", "Termin-Management", "Benachrichtigungen", "1 WhatsApp-Nummer"].map((f, i) => (
+            {["Alles aus Starter", "Prioritaets-Support", "Individuelle Bot-Persoenlichkeit", "Statistiken & Auswertungen", "Mehrere WhatsApp-Nummern", "Foto-Versand"].map((f, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", fontSize: 14, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
                 <span style={{ color: C.accent }}>✓</span> {f}
               </div>
             ))}
-            <button style={{ width: "100%", marginTop: 20, padding: "13px 0", borderRadius: 10, background: "transparent", border: `1px solid ${C.accent}`, color: C.accent, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Jetzt starten</button>
-          </div>
-          <div style={{ padding: mob ? 28 : 40, borderRadius: 16, position: "relative", background: C.card, border: `2px solid ${C.accent}50`, boxShadow: `0 0 60px ${C.accent}10` }}>
-            <div style={{ position: "absolute", top: -12, right: 24, padding: "4px 14px", borderRadius: 20, background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`, color: "#0a0a0f", fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>EMPFOHLEN</div>
-            <div style={{ fontSize: 13, color: C.accent, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Pro</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
-              <span style={{ fontSize: 40, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', Georgia, serif" }}>{annual ? "69" : "89"}</span>
-              <span style={{ fontSize: 16, color: C.textMuted }}>€/Monat</span>
-            </div>
-            {annual && <div style={{ fontSize: 12, color: C.accent, marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Spare 240€ pro Jahr</div>}
-            <div style={{ width: "100%", height: 1, background: C.border, margin: "12px 0" }} />
-            {["Alles aus Starter", "Prioritäts-Support", "Individuelle Bot-Persönlichkeit", "Statistiken & Auswertungen", "Mehrere WhatsApp-Nummern", "Foto-Versand"].map((f, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", fontSize: 14, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
-                <span style={{ color: C.accent }}>✓</span> {f}
-              </div>
-            ))}
-            <button style={{ width: "100%", marginTop: 20, padding: "13px 0", borderRadius: 10, background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`, border: "none", color: "#0a0a0f", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Jetzt starten</button>
+            <a href={DASHBOARD_URL} style={{ display: "block", width: "100%", marginTop: 20, padding: "13px 0", borderRadius: 10, background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>Jetzt starten</a>
           </div>
         </div>
       </FadeIn>
       <FadeIn delay={500}>
         <div style={{ textAlign: "center", marginTop: 24, fontSize: mob ? 12 : 14, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
-          💳 Keine Kreditkarte nötig · Jederzeit kündbar · 7 Tage kostenlos testen
+          Keine Kreditkarte noetig · Jederzeit kuendbar · 7 Tage kostenlos testen
         </div>
       </FadeIn>
     </section>
@@ -329,13 +334,14 @@ function FAQ() {
   const mob = useIsMobile();
   const [open, setOpen] = useState(null);
   const faqs = [
-    { q: "Was genau macht ServiceReply?", a: "ServiceReply ist ein KI-Bot, der deine WhatsApp-Nachrichten automatisch beantwortet. Er informiert Kunden über deine Preise, Zeiten und Services und kann Termine vereinbaren." },
-    { q: "Merken die Kunden, dass es ein Bot ist?", a: "Nein. Der Bot kommuniziert natürlich und persönlich, genau in deinem Stil." },
+    { q: "Was genau macht ServiceReply?", a: "ServiceReply ist ein KI-Bot, der deine WhatsApp-Nachrichten automatisch beantwortet. Er informiert Kunden ueber deine Preise, Zeiten und Services und kann Termine vereinbaren." },
+    { q: "Merken die Kunden, dass es ein Bot ist?", a: "Nein. Der Bot kommuniziert natuerlich und persoenlich, genau in deinem Stil." },
     { q: "Wie verbinde ich meine WhatsApp-Nummer?", a: "Du scannst einen QR-Code in deinem Dashboard. In weniger als einer Minute ist der Bot aktiv." },
-    { q: "Kann ich den Bot jederzeit ausschalten?", a: "Ja! Schreibe einfach #pauza und der Bot pausiert. Mit #aktivno startet er wieder." },
-    { q: "Was passiert bei Terminanfragen?", a: "Der Bot schreibt dir eine Nachricht mit allen Details. Du antwortest mit #da oder #ne." },
-    { q: "Ist meine Privatsphäre geschützt?", a: "Absolut. Deine Daten werden verschlüsselt und niemals an Dritte weitergegeben." },
-    { q: "Kann ich den Bot kostenlos testen?", a: "Ja! 7 Tage kostenlos. Keine Kreditkarte nötig." },
+    { q: "Kann ich den Bot jederzeit ausschalten?", a: "Ja! Du kannst den Bot jederzeit ueber das Dashboard oder per WhatsApp-Nachricht pausieren und wieder aktivieren." },
+    { q: "Was passiert bei Terminanfragen?", a: "Der Bot schreibt dir eine Nachricht mit allen Details. Du bestaetigst oder lehnst den Termin mit einem Klick im Dashboard ab." },
+    { q: "Habe ich eine Uebersicht ueber meine Termine?", a: "Ja! Im Dashboard siehst du alle Termine, Kunden, Umsaetze und Statistiken auf einen Blick — deine persoenliche Buchhaltung." },
+    { q: "Ist meine Privatsphaere geschuetzt?", a: "Absolut. Deine Daten werden verschluesselt und niemals an Dritte weitergegeben." },
+    { q: "Kann ich den Bot kostenlos testen?", a: "Ja! 7 Tage kostenlos. Keine Kreditkarte noetig." },
     { q: "In welchen Sprachen antwortet der Bot?", a: "Deutsch. Weitere Sprachen kommen bald." },
   ];
 
@@ -348,7 +354,7 @@ function FAQ() {
         <FadeIn>
           <div style={{ textAlign: "center", marginBottom: mob ? 32 : 48 }}>
             <div style={{ fontSize: 13, color: C.accent, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 12, fontFamily: "'DM Sans', sans-serif" }}>FAQ</div>
-            <h2 style={{ fontSize: mob ? 28 : 42, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', Georgia, serif" }}>Häufige Fragen</h2>
+            <h2 style={{ fontSize: mob ? 28 : 42, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', Georgia, serif" }}>Haeufige Fragen</h2>
           </div>
         </FadeIn>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -375,7 +381,7 @@ function CTA() {
   const { C } = useTheme();
   const mob = useIsMobile();
   return (
-    <section id="start" style={{ padding: mob ? "60px 20px" : "100px 48px" }}>
+    <section style={{ padding: mob ? "60px 20px" : "100px 48px" }}>
       <FadeIn>
         <div style={{
           maxWidth: 700, margin: "0 auto", textAlign: "center",
@@ -385,19 +391,13 @@ function CTA() {
         }}>
           <h2 style={{ fontSize: mob ? 26 : 38, fontWeight: 700, color: C.text, marginBottom: 12, fontFamily: "'Playfair Display', Georgia, serif", position: "relative" }}>Bereit loszulegen?</h2>
           <p style={{ fontSize: mob ? 14 : 16, color: C.textMuted, marginBottom: mob ? 24 : 36, fontFamily: "'DM Sans', sans-serif", position: "relative" }}>Teste ServiceReply 7 Tage kostenlos.</p>
-          <div style={{ display: "flex", gap: 10, justifyContent: "center", position: "relative", flexDirection: mob ? "column" : "row" }}>
-            <input placeholder="Deine E-Mail-Adresse" style={{
-              padding: "13px 18px", borderRadius: 10, flex: mob ? undefined : 1,
-              background: C.inputBg || C.bgLight, border: `1px solid ${C.border}`,
-              color: C.text, fontSize: 14, outline: "none", fontFamily: "'DM Sans', sans-serif",
-              width: mob ? "100%" : undefined, boxSizing: "border-box",
-            }} />
-            <button style={{
-              padding: "13px 28px", borderRadius: 10,
+          <div style={{ position: "relative" }}>
+            <a href={DASHBOARD_URL} style={{
+              display: "inline-block", padding: "14px 40px", borderRadius: 10,
               background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`,
-              border: "none", color: "#0a0a0f", fontSize: 14, fontWeight: 700, cursor: "pointer",
-              fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap",
-            }}>Kostenlos starten →</button>
+              color: "#fff", textDecoration: "none", fontSize: 16, fontWeight: 700,
+              fontFamily: "'DM Sans', sans-serif",
+            }}>Kostenlos starten →</a>
           </div>
         </div>
       </FadeIn>
