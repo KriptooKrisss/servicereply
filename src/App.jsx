@@ -1,3 +1,4 @@
+// ServiceReply Landing Page v2 - Umlaute fix + Email footer + Red theme + Dashboard link
 import { useState, useEffect, createContext, useContext } from "react";
 
 const themes = {
@@ -133,7 +134,7 @@ function Hero() {
             background: C.accentGlow, border: `1px solid ${C.accent}30`,
             fontSize: mob ? 11 : 13, color: C.accent, fontWeight: 600,
             fontFamily: "'DM Sans', sans-serif", letterSpacing: "0.05em", marginBottom: mob ? 20 : 28,
-          }}>✨ Dein KI-Assistent fuer WhatsApp</div>
+          }}>✨ Dein KI-Assistent für WhatsApp</div>
         </FadeIn>
         <FadeIn delay={400}>
           <h1 style={{
@@ -150,7 +151,7 @@ function Hero() {
             maxWidth: 540, margin: "0 auto", marginBottom: mob ? 28 : 40,
             fontFamily: "'DM Sans', sans-serif", padding: mob ? "0 8px" : 0,
           }}>
-            ServiceReply uebernimmt deine WhatsApp-Kommunikation — beantwortet Fragen, vereinbart Termine und informiert dich in Echtzeit. 24/7, professionell und diskret.
+            ServiceReply übernimmt deine WhatsApp-Kommunikation — beantwortet Fragen, vereinbart Termine und informiert dich in Echtzeit. 24/7, professionell und diskret.
           </p>
         </FadeIn>
         <FadeIn delay={800}>
@@ -187,10 +188,10 @@ function Features() {
   const mob = useIsMobile();
   const features = [
     { icon: "💬", title: "Automatische Antworten", desc: "Dein Bot beantwortet Kundenanfragen sofort — Preise, Zeiten, Services." },
-    { icon: "📅", title: "Termin-Management", desc: "Kunden buchen Termine direkt ueber WhatsApp. Du bestaetigst mit einem Klick." },
+    { icon: "📅", title: "Termin-Management", desc: "Kunden buchen Termine direkt über WhatsApp. Du bestätigst mit einem Klick." },
     { icon: "🔔", title: "Sofort-Benachrichtigung", desc: "Bei jedem neuen Termin wirst du sofort informiert." },
-    { icon: "📊", title: "Buchhaltung & Uebersicht", desc: "Behalte den Ueberblick: Alle Termine, Kunden und Umsaetze auf einen Blick in deinem Dashboard." },
-    { icon: "🎨", title: "Dein Stil", desc: "Passe den Kommunikationsstil an — flirty, professionell oder zurueckhaltend." },
+    { icon: "📊", title: "Buchhaltung & Übersicht", desc: "Behalte den Überblick: Alle Termine, Kunden und Umsätze auf einen Blick in deinem Dashboard." },
+    { icon: "🎨", title: "Dein Stil", desc: "Passe den Kommunikationsstil an — flirty, professionell oder zurückhaltend." },
     { icon: "🔒", title: "100% Diskret", desc: "Deine Daten bleiben bei dir. Keine Weitergabe an Dritte." },
   ];
 
@@ -223,7 +224,7 @@ function HowItWorks() {
   const steps = [
     { num: "01", title: "Registriere dich", desc: "Erstelle dein Konto in 2 Minuten. Gib deine Daten ein — Name, Preise, Zeiten, Services." },
     { num: "02", title: "Verbinde WhatsApp", desc: "Scanne einen QR-Code und dein Bot ist sofort aktiv." },
-    { num: "03", title: "Lehne dich zurueck", desc: "Dein Bot uebernimmt. Du wirst bei Terminen benachrichtigt und bestaetigst mit einem Klick." },
+    { num: "03", title: "Lehne dich zurück", desc: "Dein Bot übernimmt. Du wirst bei Terminen benachrichtigt und bestätigst mit einem Klick." },
   ];
 
   return (
@@ -280,7 +281,7 @@ function Pricing() {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <div style={{ display: "inline-flex", borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}` }}>
               <button onClick={() => setAnnual(false)} style={{ padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: !annual ? C.accent : "transparent", color: !annual ? "#fff" : C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>Monatlich</button>
-              <button onClick={() => setAnnual(true)} style={{ padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: annual ? C.accent : "transparent", color: annual ? "#fff" : C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>Jaehrlich (-20%)</button>
+              <button onClick={() => setAnnual(true)} style={{ padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: annual ? C.accent : "transparent", color: annual ? "#fff" : C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>Jährlich (-20%)</button>
             </div>
           </div>
         </div>
@@ -295,7 +296,7 @@ function Pricing() {
             </div>
             {annual && <div style={{ fontSize: 12, color: C.accent, marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Spare 60€ pro Jahr</div>}
             <div style={{ width: "100%", height: 1, background: C.border, margin: "12px 0" }} />
-            {["WhatsApp Bot 24/7", "Automatische Antworten", "Termin-Management", "Sofort-Benachrichtigungen", "Buchhaltung & Uebersicht", "1 WhatsApp-Nummer"].map((f, i) => (
+            {["WhatsApp Bot 24/7", "Automatische Antworten", "Termin-Management", "Sofort-Benachrichtigungen", "Buchhaltung & Übersicht", "1 WhatsApp-Nummer"].map((f, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", fontSize: 14, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
                 <span style={{ color: C.accent }}>✓</span> {f}
               </div>
@@ -311,7 +312,7 @@ function Pricing() {
             </div>
             {annual && <div style={{ fontSize: 12, color: C.accent, marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Spare 120€ pro Jahr</div>}
             <div style={{ width: "100%", height: 1, background: C.border, margin: "12px 0" }} />
-            {["Alles aus Starter", "Prioritaets-Support", "Individuelle Bot-Persoenlichkeit", "Statistiken & Auswertungen", "Mehrere WhatsApp-Nummern", "Foto-Versand"].map((f, i) => (
+            {["Alles aus Starter", "Prioritäts-Support", "Individuelle Bot-Persönlichkeit", "Statistiken & Auswertungen", "Mehrere WhatsApp-Nummern", "Foto-Versand"].map((f, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", fontSize: 14, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
                 <span style={{ color: C.accent }}>✓</span> {f}
               </div>
@@ -322,7 +323,7 @@ function Pricing() {
       </FadeIn>
       <FadeIn delay={500}>
         <div style={{ textAlign: "center", marginTop: 24, fontSize: mob ? 12 : 14, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
-          Keine Kreditkarte noetig · Jederzeit kuendbar · 7 Tage kostenlos testen
+          Keine Kreditkarte nötig · Jederzeit kündbar · 7 Tage kostenlos testen
         </div>
       </FadeIn>
     </section>
@@ -334,14 +335,14 @@ function FAQ() {
   const mob = useIsMobile();
   const [open, setOpen] = useState(null);
   const faqs = [
-    { q: "Was genau macht ServiceReply?", a: "ServiceReply ist ein KI-Bot, der deine WhatsApp-Nachrichten automatisch beantwortet. Er informiert Kunden ueber deine Preise, Zeiten und Services und kann Termine vereinbaren." },
-    { q: "Merken die Kunden, dass es ein Bot ist?", a: "Nein. Der Bot kommuniziert natuerlich und persoenlich, genau in deinem Stil." },
+    { q: "Was genau macht ServiceReply?", a: "ServiceReply ist ein KI-Bot, der deine WhatsApp-Nachrichten automatisch beantwortet. Er informiert Kunden über deine Preise, Zeiten und Services und kann Termine vereinbaren." },
+    { q: "Merken die Kunden, dass es ein Bot ist?", a: "Nein. Der Bot kommuniziert natürlich und persönlich, genau in deinem Stil." },
     { q: "Wie verbinde ich meine WhatsApp-Nummer?", a: "Du scannst einen QR-Code in deinem Dashboard. In weniger als einer Minute ist der Bot aktiv." },
-    { q: "Kann ich den Bot jederzeit ausschalten?", a: "Ja! Du kannst den Bot jederzeit ueber das Dashboard oder per WhatsApp-Nachricht pausieren und wieder aktivieren." },
-    { q: "Was passiert bei Terminanfragen?", a: "Der Bot schreibt dir eine Nachricht mit allen Details. Du bestaetigst oder lehnst den Termin mit einem Klick im Dashboard ab." },
-    { q: "Habe ich eine Uebersicht ueber meine Termine?", a: "Ja! Im Dashboard siehst du alle Termine, Kunden, Umsaetze und Statistiken auf einen Blick — deine persoenliche Buchhaltung." },
-    { q: "Ist meine Privatsphaere geschuetzt?", a: "Absolut. Deine Daten werden verschluesselt und niemals an Dritte weitergegeben." },
-    { q: "Kann ich den Bot kostenlos testen?", a: "Ja! 7 Tage kostenlos. Keine Kreditkarte noetig." },
+    { q: "Kann ich den Bot jederzeit ausschalten?", a: "Ja! Du kannst den Bot jederzeit über das Dashboard oder per WhatsApp-Nachricht pausieren und wieder aktivieren." },
+    { q: "Was passiert bei Terminanfragen?", a: "Der Bot schreibt dir eine Nachricht mit allen Details. Du bestätigst oder lehnst den Termin mit einem Klick im Dashboard ab." },
+    { q: "Habe ich eine Übersicht über meine Termine?", a: "Ja! Im Dashboard siehst du alle Termine, Kunden, Umsätze und Statistiken auf einen Blick — deine persönliche Buchhaltung." },
+    { q: "Ist meine Privatsphäre geschützt?", a: "Absolut. Deine Daten werden verschlüsselt und niemals an Dritte weitergegeben." },
+    { q: "Kann ich den Bot kostenlos testen?", a: "Ja! 7 Tage kostenlos. Keine Kreditkarte nötig." },
     { q: "In welchen Sprachen antwortet der Bot?", a: "Deutsch. Weitere Sprachen kommen bald." },
   ];
 
@@ -354,7 +355,7 @@ function FAQ() {
         <FadeIn>
           <div style={{ textAlign: "center", marginBottom: mob ? 32 : 48 }}>
             <div style={{ fontSize: 13, color: C.accent, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 12, fontFamily: "'DM Sans', sans-serif" }}>FAQ</div>
-            <h2 style={{ fontSize: mob ? 28 : 42, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', Georgia, serif" }}>Haeufige Fragen</h2>
+            <h2 style={{ fontSize: mob ? 28 : 42, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', Georgia, serif" }}>Häufige Fragen</h2>
           </div>
         </FadeIn>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -416,7 +417,9 @@ function Footer() {
       gap: mob ? 12 : 0, textAlign: mob ? "center" : undefined,
     }}>
       <div style={{ fontSize: 16, fontWeight: 700, color: C.accent, fontFamily: "'Playfair Display', Georgia, serif" }}>ServiceReply</div>
-      <div style={{ fontSize: mob ? 11 : 13, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>© 2026 ServiceReply · Datenschutz · Impressum · Kontakt</div>
+      <div style={{ fontSize: mob ? 11 : 13, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
+        © 2026 ServiceReply · <a href="mailto:info@servicereply.de" style={{ color: C.textMuted, textDecoration: "none" }}>info@servicereply.de</a> · Datenschutz · Impressum
+      </div>
     </footer>
   );
 }
