@@ -1,4 +1,4 @@
-// ServiceReply Landing Page v2 - Umlaute fix + Email footer + Red theme + Dashboard link
+// ServiceReply Landing Page v3 - Beta phase + contact options + umlaut fix
 import { useState, useEffect, createContext, useContext } from "react";
 
 const themes = {
@@ -136,6 +136,14 @@ function Hero() {
             fontFamily: "'DM Sans', sans-serif", letterSpacing: "0.05em", marginBottom: mob ? 20 : 28,
           }}>✨ Dein KI-Assistent für WhatsApp</div>
         </FadeIn>
+        <FadeIn delay={300}>
+          <div style={{
+            display: "inline-block", padding: "3px 10px", borderRadius: 6,
+            background: "rgba(233,69,96,0.2)", border: "1px solid rgba(233,69,96,0.4)",
+            fontSize: 10, color: C.accent, fontWeight: 800, fontFamily: "'DM Sans', sans-serif",
+            letterSpacing: "0.2em", marginBottom: mob ? 12 : 16,
+          }}>BETA</div>
+        </FadeIn>
         <FadeIn delay={400}>
           <h1 style={{
             fontSize: mob ? 34 : 62, fontWeight: 700, lineHeight: 1.1,
@@ -170,7 +178,7 @@ function Hero() {
         </FadeIn>
         <FadeIn delay={1000}>
           <div style={{ display: "flex", justifyContent: "center", gap: mob ? 28 : 40, marginTop: mob ? 40 : 60, fontFamily: "'DM Sans', sans-serif" }}>
-            {[{ num: "24/7", label: "Erreichbar" }, { num: "<3s", label: "Antwortzeit" }, { num: "100%", label: "Diskret" }].map((s, i) => (
+            {[{ num: "24/7", label: "Erreichbar" }, { num: "✓", label: "Menschlich" }, { num: "100%", label: "Diskret" }].map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: mob ? 22 : 28, fontWeight: 700, color: C.accent }}>{s.num}</div>
                 <div style={{ fontSize: mob ? 10 : 12, color: C.textMuted, marginTop: 4, letterSpacing: "0.05em" }}>{s.label}</div>
@@ -323,7 +331,7 @@ function Pricing() {
       </FadeIn>
       <FadeIn delay={500}>
         <div style={{ textAlign: "center", marginTop: 24, fontSize: mob ? 12 : 14, color: C.textMuted, fontFamily: "'DM Sans', sans-serif" }}>
-          Keine Kreditkarte nötig · Jederzeit kündbar · 7 Tage kostenlos testen
+          Keine Kreditkarte nötig · Jederzeit kündbar · Aktuell in der Beta-Phase
         </div>
       </FadeIn>
     </section>
@@ -342,7 +350,7 @@ function FAQ() {
     { q: "Was passiert bei Terminanfragen?", a: "Der Bot schreibt dir eine Nachricht mit allen Details. Du bestätigst oder lehnst den Termin mit einem Klick im Dashboard ab." },
     { q: "Habe ich eine Übersicht über meine Termine?", a: "Ja! Im Dashboard siehst du alle Termine, Kunden, Umsätze und Statistiken auf einen Blick — deine persönliche Buchhaltung." },
     { q: "Ist meine Privatsphäre geschützt?", a: "Absolut. Deine Daten werden verschlüsselt und niemals an Dritte weitergegeben." },
-    { q: "Kann ich den Bot kostenlos testen?", a: "Ja! 7 Tage kostenlos. Keine Kreditkarte nötig." },
+    { q: "Kann ich den Bot kostenlos testen?", a: "Ja! Wir sind aktuell in der Beta-Phase. Schreib uns eine Nachricht und wir richten deinen Zugang ein." },
     { q: "In welchen Sprachen antwortet der Bot?", a: "Deutsch. Weitere Sprachen kommen bald." },
   ];
 
@@ -390,15 +398,22 @@ function CTA() {
           background: `linear-gradient(135deg, ${C.card} 0%, #1a1a28 100%)`,
           border: `1px solid ${C.accent}20`, position: "relative", overflow: "hidden",
         }}>
+          <div style={{ display: "inline-block", padding: "4px 12px", borderRadius: 20, background: "rgba(233,69,96,0.15)", border: "1px solid rgba(233,69,96,0.3)", fontSize: 11, color: C.accent, fontWeight: 700, fontFamily: "'DM Sans', sans-serif", marginBottom: 16, letterSpacing: "0.1em" }}>BETA</div>
           <h2 style={{ fontSize: mob ? 26 : 38, fontWeight: 700, color: C.text, marginBottom: 12, fontFamily: "'Playfair Display', Georgia, serif", position: "relative" }}>Bereit loszulegen?</h2>
-          <p style={{ fontSize: mob ? 14 : 16, color: C.textMuted, marginBottom: mob ? 24 : 36, fontFamily: "'DM Sans', sans-serif", position: "relative" }}>Teste ServiceReply 7 Tage kostenlos.</p>
-          <div style={{ position: "relative" }}>
-            <a href={DASHBOARD_URL} style={{
-              display: "inline-block", padding: "14px 40px", borderRadius: 10,
+          <p style={{ fontSize: mob ? 14 : 16, color: C.textMuted, marginBottom: mob ? 24 : 36, fontFamily: "'DM Sans', sans-serif", position: "relative" }}>Sichere dir jetzt deinen kostenlosen Beta-Zugang. Begrenzte Plätze!</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", position: "relative", flexDirection: mob ? "column" : "row", padding: mob ? "0 10px" : 0 }}>
+            <a href="mailto:info@servicereply.de?subject=Beta-Zugang anfragen" style={{
+              display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 28px", borderRadius: 10,
               background: `linear-gradient(135deg, ${C.accent}, ${C.accentLight})`,
-              color: "#fff", textDecoration: "none", fontSize: 16, fontWeight: 700,
-              fontFamily: "'DM Sans', sans-serif",
-            }}>Kostenlos starten →</a>
+              color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 700,
+              fontFamily: "'DM Sans', sans-serif", justifyContent: "center",
+            }}>✉️ info@servicereply.de</a>
+            <a href="https://wa.me/491794169592?text=Hallo%2C%20ich%20interessiere%20mich%20f%C3%BCr%20ServiceReply" style={{
+              display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 28px", borderRadius: 10,
+              background: "transparent", border: `1px solid ${C.accent}`,
+              color: C.accent, textDecoration: "none", fontSize: 14, fontWeight: 700,
+              fontFamily: "'DM Sans', sans-serif", justifyContent: "center",
+            }}>💬 WhatsApp</a>
           </div>
         </div>
       </FadeIn>
