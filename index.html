@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no, address=no, email=no">
+<meta name="x-apple-disable-message-reformatting" content="">
 <title>ServiceReply — Nova</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -321,6 +323,43 @@
     text-shadow: 0 2px 12px rgba(0,0,0,0.85);
   }
 
+  /* === MOBILE — kompaktan menu, sve stane bez preklapanja === */
+  @media (max-width: 600px) {
+    .menu-overlay {
+      gap: 14px;
+      padding: 124px 20px 70px;
+      justify-content: flex-start;
+    }
+    .menu-overlay a {
+      font-size: 1.15rem;
+    }
+    .menu-brand {
+      top: 26px;
+    }
+    .menu-overlay .menu-brand-main {
+      font-size: 1.55rem;
+      letter-spacing: -0.025em;
+      white-space: nowrap;
+    }
+    .menu-brand-sub {
+      font-size: 0.78rem;
+      letter-spacing: 0.35em;
+      margin-top: 0.3em;
+    }
+    .menu-overlay a.menu-cta {
+      margin-top: 8px;
+      padding: 7px 22px;
+      border: 1px solid rgba(255,138,61,0.55);
+      border-radius: 99px;
+      background: rgba(255,138,61,0.06);
+      font-size: 1rem;
+    }
+    .menu-footer {
+      bottom: 18px;
+      font-size: 0.76rem;
+    }
+  }
+
   /* === Tipografija + utility === */
   section { padding: 110px 28px; max-width: 1200px; margin: 0 auto; }
   @media (max-width: 700px) { section { padding: 80px 22px; } }
@@ -566,7 +605,13 @@
   }
   .phone-wrap .av svg{ width:55%; height:55%; }
   .phone-wrap .meta{ flex:1; min-width:0; }
-  .phone-wrap .num{ font-size:calc(var(--w)*.043); font-weight:700; color:#fff; letter-spacing:.2px; }
+  .phone-wrap .num{
+    font-size:calc(var(--w)*.043); font-weight:700; color:#fff !important; letter-spacing:.2px;
+    text-decoration: none !important;
+    -webkit-text-decoration-color: transparent;
+    pointer-events: none;
+  }
+  .phone-wrap .num a { color: #fff !important; text-decoration: none !important; pointer-events: none; }
   .phone-wrap .prev{ font-size:calc(var(--w)*.039); color:#fff; font-weight:600;
         margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .phone-wrap .right{ display:flex; flex-direction:column; align-items:flex-end; gap:7px; flex:none; }
@@ -1311,8 +1356,18 @@
   body.overlay-open .wa-tooltip,
   body.menu-open .wa-tooltip { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
   @media (max-width:600px) {
-    .wa-tooltip { right: 20px; bottom: 100px; }
-    .wa-tooltip-bubble { font-size: 0.85rem; padding: 10px 14px; }
+    /* Na mobitelu: bubble ide direktno iznad WhatsApp ikone (centrirano s njom), bez dijagonalnih tackica */
+    .wa-tooltip {
+      right: 12px;
+      bottom: 100px;
+      align-items: flex-end;
+      gap: 0;
+    }
+    .wa-tooltip-bubble {
+      font-size: 0.8rem; padding: 9px 14px;
+      margin-right: 4px;
+    }
+    .wa-tooltip-dots { display: none; }
   }
 </style>
 </head>
@@ -2464,6 +2519,9 @@ document.querySelectorAll('.faq-item').forEach(item => {
     }
   }
 
+  // Pratimo SAMO telefon (ne cijelu sekciju) sa visim thresholdom —
+  // animacija krene tek kad korisnik stvarno vidi telefon, ne dok jos cita tekst.
+  const phoneTarget = sec.querySelector('.solution-phone') || sec;
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting && !running) {
@@ -2471,8 +2529,8 @@ document.querySelectorAll('.faq-item').forEach(item => {
         loop();
       }
     });
-  }, { threshold: 0.3 });
-  io.observe(sec);
+  }, { threshold: 0.55 });
+  io.observe(phoneTarget);
 })();
 </script>
 
