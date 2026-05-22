@@ -1,13 +1,2525 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>servicereply</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ServiceReply — Nova</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --text: #ffffff;
+    --text-dim: rgba(255,255,255,0.78);
+    --text-faded: rgba(255,255,255,0.5);
+    --line: rgba(255,255,255,0.18);
+  }
+  html { background: #000; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+  html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+  body {
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    background: transparent;
+    line-height: 1.4;
+  }
+
+  #bg { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; display: block; }
+
+  main {
+    position: relative; z-index: 1;
+    transition: opacity 0.35s ease;
+  }
+  /* Kad menu open, sav sadrzaj fade out */
+  body.menu-open main { opacity: 0; pointer-events: none; }
+  body.overlay-open main, body.overlay-open footer { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+
+  /* === Page overlay (Impressum/Datenschutz) === */
+  .page-overlay {
+    position: fixed; inset: 0; z-index: 210;
+    opacity: 0; pointer-events: none;
+    overflow-y: auto;
+    transition: opacity 0.4s ease;
+    padding: 110px 28px 60px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .page-overlay.open { opacity: 1; pointer-events: auto; }
+
+  /* === Login overlay (Anmelden) — transparent, shader ostaje iza === */
+  .login-overlay {
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    padding: 80px 24px 60px;
+    overflow-y: auto;
+  }
+  .login-card {
+    width: 100%; max-width: 420px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 24px;
+    padding: 44px 36px 36px;
+    box-shadow: 0 0 80px -20px rgba(255,138,61,0.18);
+  }
+  .login-logo {
+    display: flex; justify-content: center;
+    margin-bottom: 24px;
+  }
+  .login-logo img {
+    width: 64px; height: 64px;
+    opacity: 0.95;
+  }
+  .login-card h1 {
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    text-align: center; margin-bottom: 8px;
+    color: #fff;
+  }
+  .login-sub {
+    text-align: center;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 32px;
+    font-size: 0.92rem; line-height: 1.5;
+  }
+  .login-form {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .login-form label {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .login-form label span {
+    font-size: 0.78rem; color: rgba(255,255,255,0.7);
+    font-weight: 600; letter-spacing: 0.04em;
+  }
+  .login-form input {
+    width: 100%; padding: 13px 14px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 12px;
+    color: #fff; font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .login-form input::placeholder { color: rgba(255,255,255,0.3); }
+  .login-form input:focus {
+    outline: none;
+    border-color: rgba(255,138,61,0.7);
+    background: rgba(255,138,61,0.04);
+  }
+  .login-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #ff8a3d, #e8401a);
+    border: none; border-radius: 12px;
+    color: #fff; font-size: 1rem; font-weight: 700;
+    cursor: pointer; margin-top: 12px;
+    box-shadow: 0 10px 26px -8px rgba(232,64,26,0.55);
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+  }
+  .login-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px -8px rgba(232,64,26,0.75);
+  }
+  .login-btn:active { transform: translateY(0); }
+  .login-links {
+    display: flex; flex-direction: column; gap: 12px;
+    margin-top: 26px;
+    text-align: center;
+    font-size: 0.88rem;
+  }
+  .login-links a {
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .login-links a:hover { color: #fff; }
+  .login-links a span {
+    color: #ff8a3d; font-weight: 600; margin-left: 2px;
+  }
+  .overlay-content {
+    max-width: 760px; margin: 0 auto;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+  .overlay-content h1 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    margin-bottom: 36px;
+  }
+  .overlay-content h2 {
+    font-size: 1.2rem; font-weight: 700;
+    margin: 32px 0 14px; color: #fff;
+  }
+  .overlay-content p { color: rgba(255,255,255,0.88); margin-bottom: 14px; line-height: 1.6; }
+  .overlay-content ul { margin: 8px 0 16px 24px; color: rgba(255,255,255,0.88); }
+  .overlay-content li { margin-bottom: 6px; line-height: 1.55; }
+  .overlay-content a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+  .overlay-content a:hover { opacity: 0.7; }
+  .overlay-content .small { font-size: 0.85rem; color: rgba(255,255,255,0.65); margin-top: 32px; }
+  .overlay-content .kommt-bald-pill {
+    display: inline-block;
+    font-size: 0.74rem; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 5px 12px; border-radius: 99px;
+    margin-bottom: 28px;
+  }
+  .overlay-content code {
+    background: rgba(255,255,255,0.12);
+    padding: 1px 6px; border-radius: 4px;
+    font-size: 0.88em;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+  }
+  .overlay-close {
+    position: fixed; top: 48px; right: 36px;
+    width: 40px; height: 40px;
+    background: transparent; border: none;
+    cursor: pointer; z-index: 230;
+    display: none; align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .overlay-close::before, .overlay-close::after {
+    content: ''; position: absolute;
+    width: 26px; height: 2px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+  }
+  .overlay-close::before { transform: rotate(45deg); }
+  .overlay-close::after { transform: rotate(-45deg); }
+  body.overlay-open .overlay-close { display: flex; }
+  body.overlay-open .menu-btn, body.overlay-open .brand-logo, body.overlay-open .wa-fab { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+
+  /* === HAMBURGER (gore desno, blago nize, BEZ okvira) === */
+  /* === SCROLL DOTS === */
+  .scroll-dots {
+    position: fixed;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex; flex-direction: column; gap: 16px;
+    padding: 0;
+  }
+  .scroll-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    display: block;
+    transition: border-color 0.25s, border-width 0.25s, box-shadow 0.3s, transform 0.25s;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+  .scroll-dot:hover {
+    border-color: rgba(255,255,255,0.95);
+    transform: scale(1.2);
+  }
+  .scroll-dot.active {
+    border-color: #fff;
+    border-width: 2px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.7), 0 0 22px rgba(255,255,255,0.35);
+    transform: scale(1.3);
+  }
+  body.menu-open .scroll-dots,
+  body.overlay-open .scroll-dots {
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s;
+  }
+  @media (max-width: 600px) { .scroll-dots { display: none; } }
+
+  .brand-logo {
+    position: fixed; top: 32px; left: 28px; z-index: 220;
+    width: 88px; height: 88px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .brand-logo img {
+    width: 100%; height: 100%; display: block; object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.75)) drop-shadow(0 0 14px rgba(255,255,255,0.18));
+    transition: transform 0.7s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  .brand-logo.spin img { transform: rotate(360deg); }
+  .brand-logo:hover { transform: scale(1.06); }
+  .brand-logo:active { transform: scale(0.96); }
+
+  .menu-btn {
+    position: fixed; top: 48px; right: 36px; z-index: 220;
+    width: 40px; height: 32px;
+    background: transparent; border: none; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 4px 0;
+  }
+  .menu-btn span {
+    display: block; width: 100%; height: 2px;
+    background: #fff; border-radius: 1px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+  }
+  .menu-btn.open span:nth-child(1) { transform: translateY(11px) rotate(45deg); }
+  .menu-btn.open span:nth-child(2) { opacity: 0; }
+  .menu-btn.open span:nth-child(3) { transform: translateY(-11px) rotate(-45deg); }
+
+  /* Fullscreen menu — BEZ pozadine, samo bjela slova preko shader-a */
+  .menu-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 18px;
+    padding: 160px 20px 50px;
+    overflow-y: auto;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .menu-overlay::-webkit-scrollbar { display: none; }
+  .menu-overlay { scrollbar-width: none; }
+  .menu-overlay.open { opacity: 1; pointer-events: auto; }
+  .menu-overlay a {
+    color: #fff; text-decoration: none;
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 700; letter-spacing: -0.02em;
+    transition: opacity 0.2s, transform 0.2s;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.6);
+  }
+  .menu-overlay a:hover, .menu-overlay a:active { opacity: 0.7; transform: scale(1.04); }
+  .menu-overlay a.menu-cta {
+    color: #ff8a3d;
+    text-shadow: 0 0 26px rgba(255,138,61,0.45), 0 4px 24px rgba(0,0,0,0.9);
+  }
+  .menu-overlay a.menu-cta:hover { color: #ffa75f; opacity: 1; }
+  .menu-footer {
+    position: absolute;
+    bottom: 28px; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.55);
+    font-size: 0.82rem; font-weight: 600;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+    white-space: nowrap;
+  }
+  .menu-brand {
+    position: absolute;
+    top: 64px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+  }
+  .menu-overlay .menu-brand-main {
+    color: #fff;
+    font-size: clamp(2.2rem, 6.5vw, 4rem);
+    font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1;
+    margin-top: -0.5em;
+    text-decoration: none;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.6);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .menu-overlay .menu-brand-main:hover,
+  .menu-overlay .menu-brand-main:active { opacity: 0.7; transform: scale(1.04); }
+  .menu-brand-sub {
+    color: #fff;
+    font-size: clamp(1rem, 2.4vw, 1.5rem);
+    font-weight: 700; letter-spacing: 0.45em;
+    opacity: 0.82;
+    margin-top: 0.5em;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.85);
+  }
+
+  /* === Tipografija + utility === */
+  section { padding: 110px 28px; max-width: 1200px; margin: 0 auto; }
+  @media (max-width: 700px) { section { padding: 80px 22px; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #fff;
+    margin-bottom: 24px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+    opacity: 0.85;
+  }
+  .eyebrow::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.6);
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 6.5vw, 5rem);
+    font-weight: 800; line-height: 1.05; letter-spacing: -0.03em;
+    text-shadow: 0 4px 30px rgba(0,0,0,0.8);
+    color: #fff;
+  }
+  h2 {
+    font-size: clamp(1.8rem, 4.5vw, 3.4rem);
+    font-weight: 800; line-height: 1.1; letter-spacing: -0.025em;
+    text-shadow: 0 4px 30px rgba(0,0,0,0.8);
+    color: #fff;
+  }
+  .lede {
+    font-size: clamp(1rem, 1.7vw, 1.15rem);
+    color: var(--text-dim); line-height: 1.6;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+    max-width: 580px;
+  }
+
+  /* CTA dugmadi — JAKO transparent, samo okvir, bjela slova */
+  .btn {
+    display: inline-block; padding: 14px 28px; border-radius: 30px;
+    font-size: 15px; font-weight: 700; text-decoration: none;
+    cursor: pointer; font-family: inherit;
+    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.55);
+    backdrop-filter: blur(4px);
+  }
+  .btn:hover, .btn:active {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.85);
+  }
+  .btn-primary, .btn-ghost { border-color: rgba(255,255,255,0.55); }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+
+  .hero-checks { margin-top: 28px; max-width: 520px; }
+  .hero-checks li { font-size: 1rem; }
+
+  .hero-login-link {
+    margin-top: 18px;
+    font-size: 0.88rem;
+  }
+  .hero-login-link a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .hero-login-link a:hover { color: #fff; }
+  .hero-login-link a span {
+    color: #ff8a3d; font-weight: 600;
+    margin-left: 4px;
+  }
+
+  .trust-strip {
+    display: flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: 10px;
+    margin-top: 20px;
+    max-width: 520px;
+    font-size: 0.82rem; color: var(--text-dim);
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  }
+  .trust-strip .sep { opacity: 0.5; }
+
+  .hero-stats {
+    display: flex; justify-content: center;
+    gap: 36px; flex-wrap: wrap;
+    margin-top: 40px; padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.14);
+    max-width: 520px;
+  }
+  .stat { display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center; }
+  .stat-num {
+    font-size: clamp(1.6rem, 2.6vw, 2rem);
+    font-weight: 800; color: #fff;
+    letter-spacing: -0.02em; line-height: 1;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+  }
+  .stat-label {
+    font-size: 0.78rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    font-weight: 600;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  }
+
+  /* === HERO === */
+  .hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+    align-items: center;
+    padding-top: 130px;
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 30px; padding-top: 130px; min-height: auto; }
+  }
+  .hero .lede { margin-top: 28px; }
+
+  /* === TELEFON — novi kod od Krisssa (bez animacija, .chip → .ph-chip) === */
+  .phone-wrap { display:flex; align-items:center; justify-content:center; position:relative; font-family:'Manrope',-apple-system,system-ui,sans-serif; }
+
+  .phone-wrap .phone{
+    --w:340px;
+    position:relative; z-index:2;
+    width:var(--w);
+    aspect-ratio:1179/2556;
+    border-radius:calc(var(--w)*.155);
+    border:calc(var(--w)*.026) solid #0b0c0f;
+    background:transparent;
+    box-shadow:
+      0 0 0 1.5px #303237,
+      0 0 0 3px #0a0a0c,
+      inset 0 0 0 1px rgba(255,255,255,.09),
+      inset 0 1px 0 1px rgba(255,255,255,.06),
+      0 50px 90px -30px rgba(0,0,0,.85),
+      0 0 120px -45px rgba(255,120,60,.22);
+    transform:translateZ(0);
+    isolation:isolate;
+    -webkit-backface-visibility:hidden; backface-visibility:hidden;
+  }
+  .phone-wrap .screen{
+    position:absolute; inset:0; z-index:1;
+    background:transparent;
+    display:flex; flex-direction:column;
+  }
+  .phone-wrap .island{
+    position:absolute; top:calc(var(--w)*.028); left:50%; transform:translateX(-50%);
+    width:30%; height:calc(var(--w)*.085); background:#000;
+    border-radius:99px; z-index:40;
+    display:flex; align-items:center; justify-content:flex-end; padding-right:9%;
+  }
+  .phone-wrap .island::after{ content:""; width:7px; height:7px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#2a2f44,#000); }
+  .phone-wrap .status{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:calc(var(--w)*.045) 8% calc(var(--w)*.018);
+    color:#fff; font-size:calc(var(--w)*.038); font-weight:700;
+    letter-spacing:.3px; z-index:30;
+  }
+  .phone-wrap .status .ic{ display:flex; gap:5px; align-items:center; }
+  .phone-wrap .status svg{ display:block; }
+  .phone-wrap .body{ flex:1; overflow:hidden; padding:0 calc(var(--w)*.045); color:#fff;
+        text-shadow:0 1px 3px rgba(0,0,0,.7),0 0 6px rgba(0,0,0,.5),0 0 1px rgba(0,0,0,.9); }
+  .phone-wrap .h1{ font-size:calc(var(--w)*.078); font-weight:800; letter-spacing:-.5px;
+       margin:calc(var(--w)*.005) 0 calc(var(--w)*.025); }
+  .phone-wrap .search{
+    display:flex; align-items:center; gap:8px;
+    padding:calc(var(--w)*.026) calc(var(--w)*.04);
+    border-radius:13px; color:#fff;
+    font-size:calc(var(--w)*.038);
+    background:transparent;
+    border:1px solid rgba(255,255,255,.45);
+    margin-bottom:calc(var(--w)*.03);
+  }
+  .phone-wrap .filters{ display:flex; gap:calc(var(--w)*.014);
+           margin:4px 0 calc(var(--w)*.03);
+           overflow:visible; flex-wrap:nowrap; justify-content:space-between; }
+  .phone-wrap .ph-chip{
+    position:relative; white-space:nowrap;
+    padding:calc(var(--w)*.02) calc(var(--w)*.028);
+    border-radius:99px; font-size:calc(var(--w)*.032); font-weight:600;
+    color:#fff; background:transparent;
+    border:1px solid rgba(255,255,255,.5);
+  }
+  .phone-wrap .ph-chip.on{ color:#fff; background:transparent; border-color:#fff; font-weight:800; }
+  .phone-wrap .ph-chip .badge{
+    position:absolute; top:-9px; right:-6px;
+    background:linear-gradient(160deg,#ff8a3d,#e8401a);
+    color:#fff; font-size:calc(var(--w)*.03); font-weight:800;
+    padding:2px 7px; border-radius:99px;
+    box-shadow:0 4px 12px -2px rgba(232,64,26,.7);
+  }
+  .phone-wrap .chat{
+    display:flex; align-items:center; gap:calc(var(--w)*.032);
+    padding:calc(var(--w)*.028) calc(var(--w)*.038);
+    border-radius:16px; margin-bottom:calc(var(--w)*.02);
+    background:transparent;
+    border:1px solid rgba(255,255,255,.4);
+    flex-shrink: 0;
+  }
+
+  /* === Hero chat-scroll: auto-scroll lista (problem demo) === */
+  .chat-scroll-wrap {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 6%, #000 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 6%, #000 90%, transparent 100%);
+    cursor: pointer;
+  }
+  .chat-scroll {
+    display: flex; flex-direction: column;
+    will-change: transform;
+    transform: translateY(0);
+  }
+  .chat-scroll-wrap.paused::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.2);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* 999+ badge pulse — jaci nego prije */
+  .phone-wrap .ph-chip .badge,
+  .phone-wrap .app .badge {
+    animation: badgePulse 2s infinite ease-in-out;
+    min-width: calc(var(--w)*.058);
+    text-align: center;
+  }
+  @keyframes badgePulse {
+    0%, 100% {
+      box-shadow: 0 4px 14px -2px rgba(232,64,26,.85),
+                  0 0 0 0 rgba(255,138,61,0.75);
+    }
+    50% {
+      box-shadow: 0 4px 28px 0 rgba(232,64,26,1),
+                  0 0 0 12px rgba(255,138,61,0);
+    }
+  }
+  .phone-wrap .av{
+    width:calc(var(--w)*.105); height:calc(var(--w)*.105); flex:none;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:transparent; border:1.5px solid rgba(255,255,255,.65); color:#fff;
+  }
+  .phone-wrap .av svg{ width:55%; height:55%; }
+  .phone-wrap .meta{ flex:1; min-width:0; }
+  .phone-wrap .num{ font-size:calc(var(--w)*.043); font-weight:700; color:#fff; letter-spacing:.2px; }
+  .phone-wrap .prev{ font-size:calc(var(--w)*.039); color:#fff; font-weight:600;
+        margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .phone-wrap .right{ display:flex; flex-direction:column; align-items:flex-end; gap:7px; flex:none; }
+  .phone-wrap .time{ font-size:calc(var(--w)*.033); color:#fff; font-weight:700; }
+  .phone-wrap .cnt{
+    min-width:calc(var(--w)*.052); height:calc(var(--w)*.052); padding:0 6px;
+    border-radius:99px; background:transparent; color:#fff; border:2px solid #fff;
+    font-size:calc(var(--w)*.033); font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .phone-wrap .tabs{
+    display:flex; justify-content:space-around;
+    padding:calc(var(--w)*.022) 0 calc(var(--w)*.015);
+    text-shadow:0 1px 4px rgba(0,0,0,.55);
+  }
+  .phone-wrap .tab{ display:flex; flex-direction:column; align-items:center; gap:4px;
+       color:#fff; font-size:calc(var(--w)*.03); font-weight:700; opacity:.75; }
+  .phone-wrap .tab svg{ width:calc(var(--w)*.055); height:calc(var(--w)*.055); }
+  .phone-wrap .tab.on{ color:#fff; opacity:1; }
+  .phone-wrap .dock{
+    margin:calc(var(--w)*.01) calc(var(--w)*.035) calc(var(--w)*.045);
+    padding:calc(var(--w)*.035);
+    display:flex; justify-content:space-around; align-items:center;
+    border-radius:28px; background:transparent;
+    border:1px solid rgba(255,255,255,.35);
+  }
+  .phone-wrap .app{
+    position:relative;
+    width:calc(var(--w)*.135); height:calc(var(--w)*.135);
+    border-radius:24%; display:flex; align-items:center; justify-content:center;
+    background:transparent; border:1.5px solid rgba(255,255,255,.55); color:#fff;
+  }
+  .phone-wrap .app svg{ width:52%; height:52%; }
+  .phone-wrap .app.wa{
+    color:#ff7a45; border:1.5px solid rgba(255,122,69,.8);
+    background:transparent;
+    box-shadow:0 0 18px -4px rgba(255,122,69,.6), 0 0 0 3px rgba(255,122,69,.1);
+  }
+  .phone-wrap .app .badge{
+    position:absolute; top:-8px; right:-7px;
+    background:linear-gradient(160deg,#ff8a3d,#e8401a);
+    color:#fff; font-size:calc(var(--w)*.03); font-weight:800;
+    padding:2px 7px; border-radius:99px;
+    box-shadow:0 4px 12px -2px rgba(232,64,26,.7);
+  }
+  .phone-wrap .home-ind{ width:34%; height:5px; border-radius:99px;
+    background:rgba(255,255,255,.55); margin:0 auto calc(var(--w)*.022); }
+
+  @media (max-width: 900px) {
+    .phone-wrap .phone { --w: 280px; }
+  }
+
+  /* === PROBLEM === */
+  .problem-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px;
+    margin-top: 48px;
+  }
+  @media (max-width: 900px) { .problem-grid { grid-template-columns: 1fr; gap: 28px; } }
+  .problem-item .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; font-size: 13px; font-weight: 800;
+    margin-bottom: 16px;
+    backdrop-filter: blur(6px);
+  }
+  .problem-item h3 {
+    font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; color: #fff;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+  }
+  .problem-item p {
+    color: var(--text-dim); font-size: 0.95rem; line-height: 1.55;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+  }
+
+  /* === SOLUTION === */
+  .solution {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+    align-items: center;
+  }
+  @media (max-width: 900px) { .solution { grid-template-columns: 1fr; gap: 40px; } }
+  .solution h2 { margin-bottom: 22px; }
+  .solution .lede { margin-bottom: 28px; }
+  .check-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  .check-list li {
+    display: flex; align-items: flex-start; gap: 14px;
+    color: var(--text); font-size: 0.95rem; line-height: 1.5;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+  }
+  .check-list .ic {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Chat glass card — JAKO transparent (uzima boju pozadine) */
+  /* === Solution telefon + chat UI === */
+  .solution-phone .phone { --w: 320px; }
+  @media (max-width: 900px) {
+    .solution-phone .phone { --w: 300px; }
+  }
+  @media (max-width: 600px) {
+    .solution-phone .phone { --w: 270px; }
+  }
+
+  .chat-screen {
+    background: linear-gradient(160deg, rgba(15,15,18,0.88), rgba(10,10,14,0.94));
+    overflow: hidden;
+    border-radius: inherit;
+  }
+  .chat-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: calc(var(--w)*.04) calc(var(--w)*.038) calc(var(--w)*.028);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    z-index: 5;
+  }
+  .chat-back {
+    color: #ff8a3d; font-size: calc(var(--w)*.07); font-weight: 300;
+    line-height: 1; margin-right: 2px;
+  }
+  .chat-avatar {
+    width: calc(var(--w)*.105); height: calc(var(--w)*.105);
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a4a52, #2d2d35);
+    display: flex; align-items: center; justify-content: center;
+    font-size: calc(var(--w)*.04); font-weight: 700; color: #fff;
+    flex-shrink: 0;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+  }
+  .chat-avatar.nova {
+    background: linear-gradient(135deg, #ff8a3d, #e8401a);
+    box-shadow: 0 0 14px rgba(232,64,26,0.55);
+  }
+  .chat-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  .chat-name {
+    font-size: calc(var(--w)*.042); font-weight: 600; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: color 0.3s ease;
+  }
+  .chat-status {
+    font-size: calc(var(--w)*.032); color: rgba(255,255,255,0.5);
+  }
+
+  .chat-body {
+    flex: 1; overflow-y: auto;
+    padding: calc(var(--w)*.035) calc(var(--w)*.032);
+    display: flex; flex-direction: column;
+    gap: calc(var(--w)*.022);
+    scrollbar-width: none;
+  }
+  .chat-body::-webkit-scrollbar { display: none; }
+
+  .chat-msg {
+    max-width: 80%;
+    padding: calc(var(--w)*.025) calc(var(--w)*.034);
+    border-radius: calc(var(--w)*.038);
+    font-size: calc(var(--w)*.038); line-height: 1.35;
+    word-wrap: break-word;
+    opacity: 0; transform: translateY(8px);
+    animation: chatMsgAppear 0.4s ease forwards;
+  }
+  @keyframes chatMsgAppear {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chat-msg.in {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #fff;
+    align-self: flex-start;
+    border-bottom-left-radius: calc(var(--w)*.012);
+  }
+  .chat-msg.out {
+    background: linear-gradient(160deg, rgba(255,138,61,0.15), rgba(232,64,26,0.2));
+    border: 1px solid rgba(255,138,61,0.45);
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: calc(var(--w)*.012);
+    box-shadow: 0 0 14px rgba(232,64,26,0.2);
+  }
+  .chat-msg.system {
+    align-self: stretch;
+    max-width: 100%;
+    background: rgba(255,138,61,0.07);
+    border: 1px solid rgba(255,138,61,0.32);
+    color: #fff;
+    padding: calc(var(--w)*.034);
+    font-size: calc(var(--w)*.036);
+    border-radius: calc(var(--w)*.03);
+    box-shadow: 0 0 18px rgba(232,64,26,0.12);
+  }
+  .chat-msg.system .sys-line {
+    display: flex; gap: 6px; margin-top: 4px;
+    align-items: center;
+  }
+  .chat-msg.system .sys-line:first-child { margin-top: 0; }
+  .chat-msg.system .sys-cta {
+    margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid rgba(255,138,61,0.25);
+    color: rgba(255,255,255,0.85);
+  }
+  .chat-msg.typing {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: calc(var(--w)*.028) calc(var(--w)*.042);
+    align-self: flex-start;
+    display: inline-flex; gap: 5px;
+    width: auto;
+    align-items: center;
+  }
+  .chat-msg.typing.out-typing {
+    align-self: flex-end;
+    background: rgba(255,138,61,0.08);
+    border-color: rgba(255,138,61,0.3);
+  }
+  .chat-msg.typing span {
+    width: calc(var(--w)*.018); height: calc(var(--w)*.018);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.65);
+    animation: chatTypingPulse 1.2s infinite ease-in-out;
+  }
+  .chat-msg.typing.out-typing span { background: rgba(255,138,61,0.85); }
+  .chat-msg.typing span:nth-child(2) { animation-delay: 0.2s; }
+  .chat-msg.typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes chatTypingPulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.7); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  .chat-input {
+    display: flex; align-items: center;
+    gap: calc(var(--w)*.022);
+    padding: calc(var(--w)*.026) calc(var(--w)*.03);
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .chat-input-add {
+    width: calc(var(--w)*.088); height: calc(var(--w)*.088);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: calc(var(--w)*.06); font-weight: 300; line-height: 1;
+    flex-shrink: 0;
+  }
+  .chat-input-text {
+    flex: 1; min-width: 0;
+    padding: calc(var(--w)*.022) calc(var(--w)*.036);
+    border-radius: 99px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: calc(var(--w)*.036); color: rgba(255,255,255,0.35);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .chat-send {
+    width: calc(var(--w)*.088); height: calc(var(--w)*.088);
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff8a3d, #e8401a);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: calc(var(--w)*.038);
+    box-shadow: 0 4px 12px rgba(232,64,26,0.4);
+    cursor: pointer; user-select: none;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+  .chat-send:hover { transform: scale(1.05); }
+  .chat-send:active { transform: scale(0.94); }
+  .chat-input.typing-active .chat-input-text { color: #fff; }
+
+  /* Pause overlay (vizualan indikator kad je animacija stopirana) */
+  .chat-screen { cursor: pointer; }
+  .chat-screen.paused::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.25);
+    pointer-events: none;
+    z-index: 9;
+    transition: opacity 0.2s ease;
+  }
+
+  /* === Keyboard (slide-up iz dna ekrana) === */
+  .chat-keyboard {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 38%;
+    background: linear-gradient(180deg, rgba(28,28,34,0.97), rgba(18,18,22,0.99));
+    border-top: 1px solid rgba(255,255,255,0.08);
+    transform: translateY(105%);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: calc(var(--w)*.022) calc(var(--w)*.018);
+    display: flex; flex-direction: column;
+    gap: calc(var(--w)*.012);
+    z-index: 10;
+  }
+  .chat-keyboard.show { transform: translateY(0); }
+  .kb-row {
+    display: flex;
+    gap: calc(var(--w)*.008);
+    flex: 1;
+  }
+  .kb-key {
+    flex: 1; min-width: 0;
+    background: rgba(255,255,255,0.13);
+    border-radius: calc(var(--w)*.012);
+    display: flex; align-items: center; justify-content: center;
+    font-size: calc(var(--w)*.03);
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.4);
+    transition: background 0.1s ease, transform 0.1s ease;
+  }
+  .kb-key.dark { background: rgba(255,255,255,0.05); }
+  .kb-key.wide { flex: 1.45; }
+  .kb-key.space { flex: 4.8; }
+  .kb-key.pressed {
+    background: rgba(255,138,61,0.55);
+    transform: scale(0.94);
+  }
+
+  /* Stara chat-card stilizacija (više se ne koristi, ostavljeno za fallback) */
+  .chat-card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px; padding: 22px;
+    display: flex; flex-direction: column; gap: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  }
+  .bubble {
+    max-width: 78%; padding: 12px 16px; border-radius: 18px;
+    font-size: 14px; line-height: 1.45;
+  }
+  .bubble.in {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text); align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .bubble.out {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: var(--text); align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .bubble.status {
+    align-self: flex-end; font-size: 12px; color: #fff;
+    padding: 6px 12px; border-radius: 12px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
+  }
+  /* Sekvencijalna animacija chat poruka — aktivira se kad sekcija postane vidljiva */
+  .chat-card .bubble {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .fade.in .chat-card .bubble {
+    animation: bubble-pop 0.5s cubic-bezier(0.2, 0.85, 0.25, 1) forwards;
+  }
+  .fade.in .chat-card .bubble:nth-child(1) { animation-delay: 0.2s; }
+  .fade.in .chat-card .bubble:nth-child(2) { animation-delay: 1.4s; }
+  .fade.in .chat-card .bubble:nth-child(3) { animation-delay: 2.6s; }
+  .fade.in .chat-card .bubble:nth-child(4) { animation-delay: 3.8s; }
+  .fade.in .chat-card .bubble:nth-child(5) { animation-delay: 5.0s; }
+  @keyframes bubble-pop {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === FEATURES === */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 22px; margin-top: 48px;
+  }
+  @media (max-width: 900px) {
+    .features-grid { grid-template-columns: 1fr; gap: 16px; }
+  }
+  .feature-card {
+    padding: 26px 24px;
+    border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 16px;
+    background: transparent;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+  .feature-card:hover {
+    border-color: rgba(255,255,255,0.55);
+    transform: translateY(-2px);
+  }
+  .feature-card h3 {
+    font-size: 1.08rem; font-weight: 800;
+    margin-bottom: 12px;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.65);
+  }
+  .feature-card p {
+    font-size: 0.94rem; line-height: 1.55;
+    color: rgba(255,255,255,0.82);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+  .features-more {
+    text-align: center; margin-top: 32px;
+  }
+  .features-more a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.98rem;
+    border-bottom: 1px solid rgba(255,255,255,0.4);
+    padding-bottom: 3px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .features-more a:hover {
+    color: #fff;
+    border-color: #fff;
+  }
+
+  /* === PREISE === */
+  .preise-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 22px; margin-top: 48px;
+    max-width: 880px; margin-left: auto; margin-right: auto;
+  }
+  @media (max-width: 800px) { .preise-grid { grid-template-columns: 1fr; gap: 32px; } }
+  .preise-card {
+    position: relative;
+    padding: 36px 30px 32px;
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 20px;
+    background: transparent;
+    display: flex; flex-direction: column;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+  .preise-card:hover {
+    border-color: rgba(255,255,255,0.75);
+    transform: translateY(-3px);
+  }
+  .preise-badge {
+    position: absolute; top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: #fff; color: #0a0a0c;
+    font-size: 0.74rem; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 5px 14px; border-radius: 99px;
+    white-space: nowrap;
+  }
+  .preise-name {
+    font-size: 0.86rem; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 14px;
+  }
+  .preise-price {
+    font-size: clamp(2.2rem, 4.4vw, 3rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    color: #fff; line-height: 1;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    margin-bottom: 6px;
+    display: flex; align-items: baseline; gap: 4px;
+  }
+  .preise-currency { font-size: 0.55em; font-weight: 700; opacity: 0.85; }
+  .preise-period {
+    font-size: 0.32em; font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    margin-left: 6px;
+  }
+  .preise-savings {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 14px;
+  }
+  .preise-tagline {
+    font-size: 0.96rem;
+    color: rgba(255,255,255,0.84);
+    line-height: 1.5;
+    margin-bottom: 26px;
+  }
+  .preise-features {
+    list-style: none; padding: 0;
+    margin: 0 0 30px;
+    display: flex; flex-direction: column; gap: 11px;
+    flex: 1;
+  }
+  .preise-features li {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.88);
+    padding-left: 26px;
+    position: relative;
+    line-height: 1.4;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.45);
+  }
+  .preise-features li::before {
+    content: '✓'; position: absolute; left: 0; top: 0;
+    color: #fff; font-weight: 800; font-size: 1rem;
+  }
+  .preise-cta {
+    text-align: center; width: 100%;
+    padding: 14px 24px;
+    border-radius: 99px;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    color: #fff; text-decoration: none;
+    font-weight: 700; font-size: 0.96rem;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .preise-cta:hover { background: #fff; color: #0a0a0c; border-color: #fff; transform: translateY(-1px); }
+  .preise-trust {
+    text-align: center;
+    margin: 40px auto 0;
+    max-width: 720px;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+  }
+  .preise-trust .sep { margin: 0 10px; opacity: 0.5; }
+  .preise-beta {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-left: 4px;
+  }
+
+  /* === ABLAUF === */
+  .steps { display: flex; flex-direction: column; gap: 16px; margin-top: 48px; }
+  .step {
+    display: flex; align-items: flex-start; gap: 20px;
+    padding: 22px 24px;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+  }
+  .step .num {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.35);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: #fff;
+    flex-shrink: 0;
+  }
+  .step-body h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: #fff; }
+  .step-body p { color: var(--text-dim); font-size: 0.92rem; line-height: 1.5; }
+
+  /* === FAQ === */
+  .faq-list { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; max-width: 820px; margin-left: auto; margin-right: auto; }
+  .faq-item {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color .25s ease;
+  }
+  .faq-item[open] { border-color: rgba(255,255,255,.6); }
+  .faq-item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 20px 22px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    font-size: clamp(0.98rem, 1.6vw, 1.1rem);
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::marker { content: ''; }
+  .faq-icon {
+    width: 18px; height: 18px;
+    position: relative; flex-shrink: 0;
+  }
+  .faq-icon::before, .faq-icon::after {
+    content: ''; position: absolute; background: #fff;
+    transition: transform .3s ease;
+  }
+  .faq-icon::before { top: 50%; left: 0; right: 0; height: 2px; transform: translateY(-50%); }
+  .faq-icon::after { top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-50%); }
+  .faq-item[open] .faq-icon::after { transform: translateX(-50%) rotate(90deg); }
+  .faq-answer {
+    padding: 0 22px 22px;
+    color: rgba(255,255,255,.82);
+    font-size: 0.97rem;
+    line-height: 1.6;
+    text-shadow: 0 1px 3px rgba(0,0,0,.55);
+  }
+  .faq-answer code {
+    background: rgba(255,255,255,.12);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+  }
+
+  /* === DEMO CTA === */
+  .demo-cta {
+    text-align: center;
+    max-width: 800px; margin: 0 auto;
+    padding-top: 80px; padding-bottom: 130px;
+  }
+  .demo-cta .lede { margin: 24px auto 18px; }
+  .demo-cta .cta-row { justify-content: center; margin-top: 28px; }
+  .demo-cta .eyebrow { justify-content: center; }
+  .demo-cta .demo-claim {
+    font-size: 1.15rem; font-weight: 700; color: #fff;
+    margin: 0 auto 22px; max-width: 640px;
+    text-shadow: 0 1px 3px rgba(0,0,0,.65);
+  }
+  .demo-cta .demo-fine {
+    font-size: 0.95rem; color: var(--text-dim, rgba(255,255,255,.78));
+    margin: 0 auto;
+  }
+  .demo-cta .demo-note {
+    font-size: 0.88rem; font-style: italic;
+    color: rgba(255,255,255,.65);
+    margin: 22px auto 0;
+  }
+
+  /* === Footer === */
+  footer {
+    padding: 40px 24px 60px;
+    text-align: center;
+    color: var(--text-faded); font-size: 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 60px;
+  }
+  footer a {
+    color: var(--text-faded);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  footer a:hover { color: #fff; }
+  footer .sep { margin: 0 8px; opacity: 0.5; }
+
+  /* === Fade-in animacije === */
+  .fade {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.9s cubic-bezier(0.2, 0.85, 0.25, 1), transform 0.9s cubic-bezier(0.2, 0.85, 0.25, 1);
+  }
+  .fade.in { opacity: 1; transform: translateY(0); }
+
+  #err { position: fixed; top: 0; left: 0; right: 0; background: #c00; color: #fff; padding: 1rem; font-family: monospace; font-size: 0.85rem; z-index: 999; white-space: pre-wrap; display: none; }
+
+  /* === WhatsApp floating gumb === */
+  .wa-fab{
+    --s:64px;
+    --c:#ffffff;
+    position:fixed;
+    right:36px;bottom:48px;
+    z-index:9999;
+    width:var(--s);height:var(--s);
+    display:flex;align-items:center;justify-content:center;
+    border-radius:26%;
+    background:transparent;
+    border:none;
+    color:var(--c);
+    box-shadow:none;
+    text-decoration:none;
+    cursor:pointer;
+    transition:transform .18s ease;
+  }
+  .wa-fab svg{
+    width:64%;height:64%;display:block;
+    shape-rendering:geometricPrecision;
+    text-rendering:geometricPrecision;
+  }
+  .wa-fab:hover{ transform:scale(1.07); }
+  .wa-fab:active{ transform:scale(.97); }
+  .wa-fab:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  @media (max-width:600px){
+    .wa-fab{--s:56px;right:20px;bottom:32px}
+  }
+
+  /* === WhatsApp oblačić (tooltip) — typing dots + tekst === */
+  .wa-tooltip {
+    position: fixed;
+    right: 90px; bottom: 100px;
+    z-index: 9998;
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: 4px;
+    opacity: 0; pointer-events: none;
+    transform: translateY(6px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .wa-tooltip.show { opacity: 1; transform: translateY(0); }
+  .wa-tooltip-bubble {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
+    padding: 11px 18px;
+    border-radius: 18px;
+    color: #fff;
+    font-size: 0.9rem; font-weight: 500;
+    white-space: nowrap;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.4);
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+    opacity: 0; transform: scale(0.7);
+    transform-origin: bottom right;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .wa-tooltip.text-ready .wa-tooltip-bubble { opacity: 1; transform: scale(1); }
+  .wa-tooltip-dots {
+    position: relative;
+    width: 38px; height: 38px;
+  }
+  .wa-tooltip-dots span {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.85);
+    animation: waDotPulse 1.4s infinite ease-in-out;
+  }
+  /* 1. najveca — odmah ispod bubble dolnji-desni ugla (gore-lijevo dotsa) */
+  .wa-tooltip-dots span:nth-child(1) {
+    width: 10px; height: 10px; top: 0; left: 0;
+  }
+  /* 2. srednja — sredina dijagonale */
+  .wa-tooltip-dots span:nth-child(2) {
+    width: 6px; height: 6px; top: 14px; left: 16px;
+    animation-delay: 0.2s;
+  }
+  /* 3. najmanja — dolje-desno, ka ikoni gornji-lijevi ugao */
+  .wa-tooltip-dots span:nth-child(3) {
+    width: 4px; height: 4px; top: 30px; left: 30px;
+    animation-delay: 0.4s;
+  }
+  .wa-tooltip.text-ready .wa-tooltip-dots span {
+    animation: waDotIdle 2.6s infinite ease-in-out;
+    background: rgba(255,255,255,0.5);
+  }
+  .wa-tooltip.text-ready .wa-tooltip-dots span:nth-child(2) { animation-delay: 0.4s; }
+  .wa-tooltip.text-ready .wa-tooltip-dots span:nth-child(3) { animation-delay: 0.8s; }
+  @keyframes waDotPulse {
+    0%, 100% { opacity: 0.25; transform: scale(0.7); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+  @keyframes waDotIdle {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.6; }
+  }
+  body.overlay-open .wa-tooltip,
+  body.menu-open .wa-tooltip { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+  @media (max-width:600px) {
+    .wa-tooltip { right: 20px; bottom: 100px; }
+    .wa-tooltip-bubble { font-size: 0.85rem; padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div id="err"></div>
+
+<!-- Hamburger -->
+<a class="brand-logo" href="#hero" aria-label="ServiceReply Home"><img src="logo/enzo%20logo%20bjeli%20transparent.png" alt="ServiceReply Logo"></a>
+
+<nav class="scroll-dots" aria-label="Seitennavigation">
+  <a href="#hero" class="scroll-dot active" data-section="hero" aria-label="Start"></a>
+  <a href="#problem" class="scroll-dot" data-section="problem" aria-label="Problem"></a>
+  <a href="#solution" class="scroll-dot" data-section="solution" aria-label="Lösung"></a>
+  <a href="#features" class="scroll-dot" data-section="features" aria-label="Funktionen"></a>
+  <a href="#ablauf" class="scroll-dot" data-section="ablauf" aria-label="Ablauf"></a>
+  <a href="#faq" class="scroll-dot" data-section="faq" aria-label="FAQ"></a>
+  <a href="#preise" class="scroll-dot" data-section="preise" aria-label="Preise"></a>
+  <a href="#demo" class="scroll-dot" data-section="demo" aria-label="Kostenlos testen"></a>
+</nav>
+<button class="menu-btn" id="menuBtn" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- Fullscreen menu — BEZ background, samo bjela slova -->
+<nav class="menu-overlay" id="menuOverlay">
+  <div class="menu-brand">
+    <a href="#hero" data-close class="menu-brand-main">ServiceReply.de</a>
+    <div class="menu-brand-sub">NOVA</div>
+  </div>
+  <a href="#hero" data-close>Start</a>
+  <a href="#problem" data-close>Das Problem</a>
+  <a href="#solution" data-close>So funktioniert Nova</a>
+  <a href="#ablauf" data-close>Ablauf</a>
+  <a href="#demo" data-close>Kostenlos testen</a>
+  <a href="#preise" data-close>Preise</a>
+  <a href="#faq" data-close>FAQ</a>
+  <a href="#kontakt" data-close>Kontakt</a>
+  <a href="#dokumentation" data-overlay-target="dokumentationOverlay">Dokumentation</a>
+  <a href="#roadmap" data-overlay-target="roadmapOverlay">Roadmap</a>
+  <a href="#impressum" data-overlay-target="impressumOverlay">Impressum</a>
+  <a href="#anmelden" data-overlay-target="loginOverlay" class="menu-cta">Anmelden</a>
+  <div class="menu-footer">🇩🇪 Made in Germany</div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div>
+      <div class="fade eyebrow">Bis zu 80% weniger Tippen</div>
+      <h1 class="fade">Nie wieder dasselbe tippen.</h1>
+      <p class="fade lede">Nova übernimmt deine WhatsApp-Anfragen — antwortet sofort, sortiert Termine und gibt dir deine Zeit zurück.</p>
+      <ul class="fade check-list hero-checks">
+        <li><span class="ic">✓</span> Nova schreibt, während du arbeitest.</li>
+        <li><span class="ic">✓</span> Nova schreibt, während du schläfst.</li>
+        <li><span class="ic">✓</span> Nova schreibt — du lebst dein Leben.</li>
+      </ul>
+      <div class="fade cta-row">
+        <a href="#demo" class="btn btn-primary">Nova kostenlos testen</a>
+        <a href="#ablauf" class="btn btn-ghost">So funktioniert Nova</a>
+      </div>
+      <div class="fade hero-login-link">
+        <a href="#anmelden" data-overlay-target="loginOverlay">Bereits Kundin? <span>Anmelden →</span></a>
+      </div>
+      <div class="fade hero-stats">
+        <div class="stat">
+          <span class="stat-num">80%</span>
+          <span class="stat-label">weniger Tippen</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">24/7</span>
+          <span class="stat-label">erreichbar</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">0</span>
+          <span class="stat-label">Schulung nötig</span>
+        </div>
+      </div>
+      <div class="fade trust-strip">
+        <span>🇩🇪 Made in Germany</span>
+        <span class="sep">·</span>
+        <span>Server in Deutschland</span>
+        <span class="sep">·</span>
+        <span>DSGVO-konform</span>
+      </div>
+    </div>
+
+    <div class="fade phone-wrap">
+      <div class="phone">
+        <div class="screen">
+          <div class="island"></div>
+          <div class="status">
+            <span>10:10</span>
+            <span class="ic">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="white"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="6" width="3" height="6" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+              <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.7l-1.5 1.6A7.6 7.6 0 0 0 8.5 4.4 7.6 7.6 0 0 0 3 6.5L1.5 4.9A10 10 0 0 1 8.5 2.2Zm0 4a6 6 0 0 1 4.1 1.6l-1.5 1.6A3.8 3.8 0 0 0 8.5 8.4c-1 0-2 .4-2.7 1L4.4 7.8A6 6 0 0 1 8.5 6.2Zm0 3.8c.8 0 1.5.3 2 .9L8.5 12 6.5 11c.5-.6 1.2-.9 2-1Z"/></svg>
+              <svg width="28" height="13" viewBox="0 0 28 13"><rect x="1" y="1" width="23" height="11" rx="3" fill="none" stroke="white" stroke-opacity=".4"/><rect x="3" y="3" width="10" height="7" rx="1.5" fill="white"/><rect x="25" y="4" width="2.5" height="5" rx="1" fill="white" fill-opacity=".4"/></svg>
+            </span>
+          </div>
+          <div class="body">
+            <div class="h1">Chats</div>
+            <div class="search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+              Suchen
+            </div>
+            <div class="filters">
+              <span class="ph-chip on">Alle</span>
+              <span class="ph-chip">Ungelesen<span class="badge">999+</span></span>
+              <span class="ph-chip">Gruppen</span>
+              <span class="ph-chip">Favoriten</span>
+            </div>
+            <div class="chat-scroll-wrap">
+              <div class="chat-scroll" id="heroChatScroll">
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491794159892</div><div class="prev">Bist du frei?</div></div><div class="right"><span class="time">09:41</span><span class="cnt">2</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491765482103</div><div class="prev">Wie viel kostet 1 Stunde?</div></div><div class="right"><span class="time">09:33</span><span class="cnt">1</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491512887640</div><div class="prev">Kann ich kommen?</div></div><div class="right"><span class="time">09:28</span><span class="cnt">3</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491602345781</div><div class="prev">Ich will am Freitag zu dir kommen?</div></div><div class="right"><span class="time">09:18</span><span class="cnt">4</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491573918264</div><div class="prev">Hast du Foto?</div></div><div class="right"><span class="time">09:11</span><span class="cnt">1</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491768204559</div><div class="prev">Kannst du mir Bilder schicke…</div></div><div class="right"><span class="time">09:06</span><span class="cnt">5</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491631204487</div><div class="prev">Hey Schatz, bist du heute frei?</div></div><div class="right"><span class="time">08:58</span><span class="cnt">2</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491777845129</div><div class="prev">Bist du offen für etwas?</div></div><div class="right"><span class="time">08:52</span><span class="cnt">3</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491559924617</div><div class="prev">Kommst du in mein Hotel?</div></div><div class="right"><span class="time">08:45</span><span class="cnt">1</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491728193566</div><div class="prev">Bist du frei?</div></div><div class="right"><span class="time">08:39</span><span class="cnt">4</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491663845229</div><div class="prev">Wie viel für 2 Stunden?</div></div><div class="right"><span class="time">08:31</span><span class="cnt">2</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491522847001</div><div class="prev">Hast du noch Bilder?</div></div><div class="right"><span class="time">08:24</span><span class="cnt">1</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491798124554</div><div class="prev">Hi, hab dein Profil gesehen</div></div><div class="right"><span class="time">08:17</span><span class="cnt">3</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491609455703</div><div class="prev">Wann hast du Zeit?</div></div><div class="right"><span class="time">08:10</span><span class="cnt">2</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491775928014</div><div class="prev">Bilder bitte</div></div><div class="right"><span class="time">08:03</span><span class="cnt">5</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491534718826</div><div class="prev">Wie viel kostet die Nacht?</div></div><div class="right"><span class="time">07:55</span><span class="cnt">1</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491788293645</div><div class="prev">Wo bist du gerade?</div></div><div class="right"><span class="time">07:48</span><span class="cnt">2</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491650184772</div><div class="prev">Bist du frei heute Abend?</div></div><div class="right"><span class="time">07:42</span><span class="cnt">3</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491723859014</div><div class="prev">Kann ich vorbeikommen?</div></div><div class="right"><span class="time">07:35</span><span class="cnt">1</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491569027438</div><div class="prev">Hast du Zeit?</div></div><div class="right"><span class="time">07:28</span><span class="cnt">4</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491718473082</div><div class="prev">Hey, bist du frei?</div></div><div class="right"><span class="time">07:21</span><span class="cnt">2</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491603481157</div><div class="prev">Was kostet 30 Min?</div></div><div class="right"><span class="time">07:14</span><span class="cnt">1</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491582910638</div><div class="prev">Wie sind deine Preise?</div></div><div class="right"><span class="time">07:08</span><span class="cnt">2</span></div></div>
+                <div class="chat"><div class="av"></div><div class="meta"><div class="num">+491749385022</div><div class="prev">Schicke mir bitte Fotos</div></div><div class="right"><span class="time">07:01</span><span class="cnt">3</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.4 8.4 0 0 1-12 7.6L3 21l1.9-6A8.5 8.5 0 1 1 21 11.5Z"/></svg>Chats</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L19 13l5 2v3a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>Anrufe</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>Status</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2.6-1.5l-.4-2.5h-4l-.4 2.5A7.6 7.6 0 0 0 6 6.5l-2.4-1-2 3.4 2 1.6a7.8 7.8 0 0 0 0 3l-2 1.6 2 3.4 2.4-1c.8.7 1.7 1.2 2.6 1.5l.4 2.5h4l.4-2.5c.9-.3 1.8-.8 2.6-1.5l2.4 1 2-3.4Z"/></svg>Einstellungen</div>
+          </div>
+          <div class="dock">
+            <div class="app"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h3l2 5-2.5 1.5a11 11 0 0 0 5 5L16 12l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z"/></svg></div>
+            <div class="app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg></div>
+            <div class="app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div>
+            <div class="app wa"><span class="badge">999+</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm-2.4 5.3c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.4 0 .6l-.6.9c-.1.2-.2.4 0 .7a7 7 0 0 0 3.2 2.8c.3.1.5.1.7-.1l.8-.9c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.3.4.5 0 1-.8 2-1.8 2.2-1 .2-2.2 0-4.6-1.4a9.3 9.3 0 0 1-3.7-4.6c-.5-1.5-.2-2.7.3-3.5.4-.6 1-.8 1.4-.8Z"/></svg></div>
+          </div>
+          <div class="home-ind"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="fade eyebrow">Das Problem</div>
+    <h2 class="fade">Du verlierst Stunden — jeden Tag.</h2>
+    <p class="fade lede" style="margin-top: 22px;">Es ist nicht die Technik, die nervt. Es sind die hundert gleichen Nachrichten, die täglich kommen — während du eigentlich was anderes machen wolltest.</p>
+
+    <div class="problem-grid">
+      <div class="fade problem-item">
+        <div class="num">01</div>
+        <h3>Hunderte Nachrichten täglich</h3>
+        <p>Du öffnest WhatsApp und siehst 50, 100, 200 ungelesene Chats. Du weißt gar nicht, wo du anfangen sollst.</p>
+      </div>
+      <div class="fade problem-item">
+        <div class="num">02</div>
+        <h3>Immer dieselben Fragen</h3>
+        <p>„Bist du frei?" „Was kostet 2 Stunden?" „Hast du Bilder?" — du tippst die gleichen Antworten, jeden Tag, hunderte Male.</p>
+      </div>
+      <div class="fade problem-item">
+        <div class="num">03</div>
+        <h3>Keine Pause, kein Privatleben</h3>
+        <p>Während du isst, schläfst oder dein Leben lebst, sammeln sich Nachrichten an. Kunden warten — du verlierst sie.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution" class="solution">
+    <!-- LEFT: Phone with chat animation -->
+    <div class="fade phone-wrap solution-phone">
+      <div class="phone">
+        <div class="screen chat-screen">
+          <div class="island"></div>
+          <div class="status">
+            <span>10:10</span>
+            <span class="ic">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="white"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="6" width="3" height="6" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+              <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.7l-1.5 1.6A7.6 7.6 0 0 0 8.5 4.4 7.6 7.6 0 0 0 3 6.5L1.5 4.9A10 10 0 0 1 8.5 2.2Zm0 4a6 6 0 0 1 4.1 1.6l-1.5 1.6A3.8 3.8 0 0 0 8.5 8.4c-1 0-2 .4-2.7 1L4.4 7.8A6 6 0 0 1 8.5 6.2Zm0 3.8c.8 0 1.5.3 2 .9L8.5 12 6.5 11c.5-.6 1.2-.9 2-1Z"/></svg>
+              <svg width="28" height="13" viewBox="0 0 28 13"><rect x="1" y="1" width="23" height="11" rx="3" fill="none" stroke="white" stroke-opacity=".4"/><rect x="3" y="3" width="10" height="7" rx="1.5" fill="white"/><rect x="25" y="4" width="2.5" height="5" rx="1" fill="white" fill-opacity=".4"/></svg>
+            </span>
+          </div>
+          <!-- Chat header (mijenja se po fazama) -->
+          <div class="chat-header">
+            <span class="chat-back">‹</span>
+            <div class="chat-avatar" id="chatAvatar">K</div>
+            <div class="chat-info">
+              <div class="chat-name" id="chatName">+49 173 9264 416</div>
+              <div class="chat-status" id="chatStatus">online</div>
+            </div>
+          </div>
+          <!-- Chat body — poruke se ubacuju kroz JS -->
+          <div class="chat-body" id="chatBody"></div>
+          <!-- Chat input (statican) -->
+          <div class="chat-input">
+            <span class="chat-input-add">+</span>
+            <span class="chat-input-text">Nachricht</span>
+            <span class="chat-send" id="chatPlayBtn" role="button" aria-label="Pause">⏸</span>
+          </div>
+          <!-- Tastatura (QWERTZ – njemacka) — slide-up kad cura kuca #ja -->
+          <div class="chat-keyboard" id="chatKeyboard" aria-hidden="true">
+            <div class="kb-row">
+              <span class="kb-key" data-k="q">q</span><span class="kb-key" data-k="w">w</span><span class="kb-key" data-k="e">e</span><span class="kb-key" data-k="r">r</span><span class="kb-key" data-k="t">t</span><span class="kb-key" data-k="z">z</span><span class="kb-key" data-k="u">u</span><span class="kb-key" data-k="i">i</span><span class="kb-key" data-k="o">o</span><span class="kb-key" data-k="p">p</span><span class="kb-key" data-k="ü">ü</span>
+            </div>
+            <div class="kb-row">
+              <span class="kb-key" data-k="a">a</span><span class="kb-key" data-k="s">s</span><span class="kb-key" data-k="d">d</span><span class="kb-key" data-k="f">f</span><span class="kb-key" data-k="g">g</span><span class="kb-key" data-k="h">h</span><span class="kb-key" data-k="j">j</span><span class="kb-key" data-k="k">k</span><span class="kb-key" data-k="l">l</span><span class="kb-key" data-k="ö">ö</span><span class="kb-key" data-k="ä">ä</span>
+            </div>
+            <div class="kb-row">
+              <span class="kb-key wide dark">⇧</span><span class="kb-key" data-k="y">y</span><span class="kb-key" data-k="x">x</span><span class="kb-key" data-k="c">c</span><span class="kb-key" data-k="v">v</span><span class="kb-key" data-k="b">b</span><span class="kb-key" data-k="n">n</span><span class="kb-key" data-k="m">m</span><span class="kb-key wide dark">⌫</span>
+            </div>
+            <div class="kb-row">
+              <span class="kb-key wide dark" data-k="#">123</span><span class="kb-key space" data-k=" "> </span><span class="kb-key wide dark">↵</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Text -->
+    <div>
+      <div class="fade eyebrow">Die Lösung</div>
+      <h2 class="fade">Nova führt das Gespräch — bis zur Bestätigung.</h2>
+      <p class="fade lede">Schau zu, wie Nova in wenigen Nachrichten einen Termin klärt, bei dir anklopft — und der Kunde erst nach deinem #ja die Bestätigung bekommt.</p>
+      <ul class="fade check-list" style="margin-top: 28px;">
+        <li><span class="ic">✓</span> Antwortet sofort im Chat — auch nachts und am Wochenende.</li>
+        <li><span class="ic">✓</span> Klärt alle Termin-Details (Zeit, Dauer, Preis) automatisch.</li>
+        <li><span class="ic">✓</span> Fragt dich vor jeder Bestätigung — du hast die letzte Entscheidung.</li>
+        <li><span class="ic">✓</span> Nach deinem #ja bekommt der Kunde sofort die Termin-Bestätigung — und du siehst, dass der Termin steht.</li>
+        <li><span class="ic">✓</span> Termin-Änderungen klärt Nova auch für dich — direkt im Chat.</li>
+        <li><span class="ic">✓</span> Du kannst einzelne Termine stornieren oder gleich alle für einen ganzen Tag absagen.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="fade eyebrow" style="text-align:center;">Funktionen</div>
+    <h2 class="fade" style="text-align:center;">Was Nova alles kann.</h2>
+
+    <div class="features-grid">
+      <div class="fade feature-card">
+        <h3>Weiß, wann du Zeit hast</h3>
+        <p>Du stellst ein, wann du arbeitest. Nova merkt sich deine Termine, plant Pausen ein und vergibt komplett selbstständig neue Termine.</p>
+      </div>
+      <div class="fade feature-card">
+        <h3>Priorisiert das, was sich lohnt</h3>
+        <p>Zwei Kunden wollen denselben Termin? Nova entscheidet automatisch für den, bei dem du mehr verdienst.</p>
+      </div>
+      <div class="fade feature-card">
+        <h3>Erkennt, wie der Kunde schreibt</h3>
+        <p>Nova versteht, wie dein Kunde drauf ist. Sie erkennt respektlose Nachrichten genauso wie sympathische — und reagiert entsprechend.</p>
+      </div>
+      <div class="fade feature-card">
+        <h3>Keine Fake-Termine mehr</h3>
+        <p>Du kannst Kunden markieren, die du nicht mehr willst. Nova merkt sich das und schreibt diesen Kunden nie wieder.</p>
+      </div>
+      <div class="fade feature-card">
+        <h3>Sendet Inhalte automatisch</h3>
+        <p>Fragt ein Kunde nach Fußbildern, Outfits oder Toys — kein Problem. Wenn du sie vorher hochgeladen hast, sendet Nova sie automatisch für dich.</p>
+      </div>
+      <div class="fade feature-card">
+        <h3>Du entscheidest, wann du übernimmst</h3>
+        <p>Du willst, dass Nova nur Standardfragen beantwortet und du den Rest machst? Kein Problem — stell es einfach so ein.</p>
+      </div>
+      <div class="fade feature-card">
+        <h3>Deine digitale Mitarbeiterin</h3>
+        <p>Nova arbeitet wie ein echter Mensch — deine persönliche Assistentin. Sie beantwortet Nachrichten, organisiert Termine und hält dir den Rücken frei.</p>
+      </div>
+      <div class="fade feature-card">
+        <h3>Kennt alle wichtigen Infos</h3>
+        <p>Der Kunde fragt nach deinem Alter oder wo du herkommst? Nova weiß alles, was du ihr einmalig mitteilst — und antwortet automatisch für dich.</p>
+      </div>
+      <div class="fade feature-card">
+        <h3>Erkennt interessante Anfragen</h3>
+        <p>Fragt jemand nach Overnight oder Reisen, wirst du sofort benachrichtigt. Nova erkennt automatisch, wenn etwas Spannendes oder Lukratives dabei ist.</p>
+      </div>
+    </div>
+
+    <p class="fade features-more">
+      <a href="#dokumentation" data-overlay-target="dokumentationOverlay">Mehr erfahren — Videos & Anleitungen →</a>
+    </p>
+  </section>
+
+  <!-- ABLAUF -->
+  <section id="ablauf">
+    <div class="fade eyebrow">Ablauf</div>
+    <h2 class="fade">Von neuer Nachricht bis fertiger Termin.</h2>
+
+    <div class="steps">
+      <div class="fade step">
+        <div class="num">1</div>
+        <div class="step-body">
+          <h3>Nachricht kommt rein</h3>
+          <p>Nova erkennt, ob es eine echte Anfrage, eine Terminänderung oder eine Standardfrage ist.</p>
+        </div>
+      </div>
+      <div class="fade step">
+        <div class="num">2</div>
+        <div class="step-body">
+          <h3>Antwort wird automatisch geführt</h3>
+          <p>Der Chat bleibt aktiv, ohne dass du jede Kleinigkeit selbst schreiben musst.</p>
+        </div>
+      </div>
+      <div class="fade step">
+        <div class="num">3</div>
+        <div class="step-body">
+          <h3>Wichtige Daten werden gesammelt</h3>
+          <p>Uhrzeit, Dauer, Wunschänderungen und offene Punkte werden sauber vorbereitet.</p>
+        </div>
+      </div>
+      <div class="fade step">
+        <div class="num">4</div>
+        <div class="step-body">
+          <h3>Du bestätigst nur noch</h3>
+          <p>Am Ende bekommst du die relevanten Termine zur Entscheidung — weniger Chat, mehr Kontrolle.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="fade eyebrow" style="text-align:center;">FAQ</div>
+    <h2 class="fade" style="text-align:center;">Häufige Fragen</h2>
+
+    <div class="faq-list">
+      <details class="fade faq-item">
+        <summary>Was macht Nova?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Nova erledigt genau das, was du am meisten hasst: Sie beantwortet immer wieder die gleichen Fragen und klärt alles rund um Termine für dich. Du bestätigst am Ende nur mit Ja oder Nein. Du bekommst alles fertig vorbereitet — wann der Kunde kommen möchte und wie lange er bleiben will.</div>
+      </details>
+
+      <details class="fade faq-item">
+        <summary>Merken die Kunden, dass nicht ich antworte?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Nein. Nova schreibt natürlich und persönlich, in deinem Stil — der Kunde merkt nichts.</div>
+      </details>
+
+      <details class="fade faq-item">
+        <summary>Was passiert bei Terminanfragen?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Nova schreibt dir eine Nachricht mit allen Details — Uhrzeit, Dauer, Preis. Du bestätigst oder lehnst mit einem Klick im Dashboard ab, oder einfach mit <code>#ja</code> bzw. <code>#nein</code> direkt im WhatsApp.</div>
+      </details>
+
+      <details class="fade faq-item">
+        <summary>Kann ich Nova jederzeit ausschalten?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Ja. Du kannst Nova über das Dashboard pausieren, oder einfach <code>#pause</code> in einen Chat schreiben — Nova zieht sich sofort zurück. Mit <code>#aktiv</code> übernimmt sie wieder. Pro einzelnen Chat oder komplett.</div>
+      </details>
+
+      <details class="fade faq-item">
+        <summary>Habe ich eine Übersicht über meine Termine?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Ja. Im Dashboard siehst du alle Termine, Kunden, Umsätze und Statistiken auf einen Blick — deine persönliche Buchhaltung. Oder schreib einfach <code>#termine</code> im WhatsApp und du bekommst alle bevorstehenden Termine direkt zugeschickt.</div>
+      </details>
+
+      <details class="fade faq-item">
+        <summary>Ist meine Privatsphäre geschützt?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Absolut. Deine Daten werden verschlüsselt, alle Server stehen in <span class="de-flag"><svg viewBox="0 0 5 3" width="18" height="11" aria-hidden="true" style="vertical-align:-2px;margin:0 4px 0 2px;border-radius:2px;"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg>Deutschland</span> — und nichts wird an Dritte weitergegeben. DSGVO-konform.</div>
+      </details>
+
+      <details class="fade faq-item">
+        <summary>Wie verbinde ich meine WhatsApp-Nummer?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Du kannst deine eigene Nummer direkt im Dashboard verbinden — oder du bekommst eine fertige Nummer von uns. Wir helfen dir persönlich beim Einrichten, du musst nichts Technisches machen.</div>
+      </details>
+
+      <details class="fade faq-item">
+        <summary>Kann ich Nova kostenlos testen?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Ja. Schreib uns eine Nachricht und wir richten deinen Zugang ein. Keine Kreditkarte, keine Verpflichtung.</div>
+      </details>
+
+      <details class="fade faq-item">
+        <summary>In welchen Sprachen antwortet Nova?<span class="faq-icon"></span></summary>
+        <div class="faq-answer">Aktuell Deutsch. Weitere Sprachen kommen bald.</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- PREISE -->
+  <section id="preise">
+    <div class="fade eyebrow" style="text-align:center;">Einfach & fair</div>
+    <h2 class="fade" style="text-align:center;">Kein versteckter Kram.<br>Einmal zahlen, alles nutzen.</h2>
+
+    <div class="preise-grid">
+      <div class="fade preise-card">
+        <div class="preise-name">Monatsabo</div>
+        <div class="preise-price">49<span class="preise-currency">€</span><span class="preise-period">/Monat</span></div>
+        <div class="preise-tagline">Monat für Monat. Kein Vertrag, keine Kündigungsfristen. Du zahlst nur, solange du nutzt.</div>
+        <ul class="preise-features">
+          <li>Nova läuft 24/7</li>
+          <li>Beantwortet jede Anfrage automatisch</li>
+          <li>Terminbuchungen & Absagen</li>
+          <li>Du wirst sofort benachrichtigt</li>
+          <li>Buchungsübersicht & Verlauf</li>
+          <li>Persönlicher Support direkt von uns</li>
+        </ul>
+        <a href="#demo" class="preise-cta">Jetzt starten</a>
+      </div>
+
+      <div class="fade preise-card preise-card--featured">
+        <div class="preise-badge">Beliebteste Wahl</div>
+        <div class="preise-name">Jahresabo</div>
+        <div class="preise-price">490<span class="preise-currency">€</span><span class="preise-period">einmalig</span></div>
+        <div class="preise-savings">für 12 Monate · wie 41 €/Monat · du sparst 98 €</div>
+        <div class="preise-tagline">2 Monate gratis — einmal zahlen, ein Jahr ruhig schlafen.</div>
+        <ul class="preise-features">
+          <li>Alles aus dem Monatsabo</li>
+          <li>2 Monate geschenkt</li>
+          <li>Einmal zahlen — keine monatlichen Buchungen</li>
+        </ul>
+        <a href="#demo" class="preise-cta">Jetzt starten — 2 Monate sparen</a>
+      </div>
+    </div>
+
+    <p class="fade preise-trust">
+      Keine Kreditkarte für den Test
+      <span class="sep">·</span>
+      Jederzeit kündbar
+      <span class="sep">·</span>
+      Persönliche Betreuung garantiert
+      <span class="preise-beta">Beta</span>
+    </p>
+  </section>
+
+  <!-- DEMO CTA -->
+  <section id="demo" class="demo-cta">
+    <div class="fade eyebrow">Kostenlos testen</div>
+    <h2 class="fade">Sieh selbst, wie Nova für dich arbeitet.</h2>
+    <p class="fade lede" style="margin-left: auto; margin-right: auto;">Nova führt das ganze Gespräch — von der ersten Nachricht bis zum fertigen Terminvorschlag. Du bestätigst am Ende nur mit Ja oder Nein.</p>
+    <p class="fade demo-claim">Statt stundenlang zu tippen — nur noch Ja oder Nein. Rund um die Uhr.</p>
+    <p class="fade demo-fine">Kein Risiko. Keine Kreditkarte. Keine Verpflichtung.</p>
+    <div class="fade cta-row">
+      <a href="mailto:info@servicereply.de" class="btn btn-ghost">info@servicereply.de</a>
+      <a href="https://wa.me/491794169592?text=Hallo%2C%20ich%20m%C3%B6chte%20Nova%20kostenlos%20testen" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">WhatsApp</a>
+    </div>
+    <p class="fade demo-note">Begrenzte Plätze — wir melden uns innerhalb von 24h.</p>
+  </section>
+
+  <footer>
+    © 2026 ServiceReply
+    <span class="sep">·</span>
+    <a href="mailto:info@servicereply.de">info@servicereply.de</a>
+    <span class="sep">·</span>
+    <a href="#datenschutz" data-overlay-target="datenschutzOverlay">Datenschutz</a>
+    <span class="sep">·</span>
+    <a href="#impressum" data-overlay-target="impressumOverlay">Impressum</a>
+  </footer>
+
+</main>
+
+<button class="overlay-close" data-overlay-close aria-label="Schließen"></button>
+
+<div class="page-overlay" id="dokumentationOverlay">
+  <div class="overlay-content">
+    <h1>Dokumentation</h1>
+    <p class="kommt-bald-pill">Kommt bald</p>
+    <p>Hier findest du in Kürze alles, was du brauchst, um Nova optimal zu nutzen:</p>
+    <ul>
+      <li>Schritt-für-Schritt Anleitungen mit Screenshots</li>
+      <li>Kurze Video-Tutorials zu jeder Funktion</li>
+      <li>Alle WhatsApp-Befehle (<code>#pause</code>, <code>#aktiv</code>, <code>#ja</code>, <code>#nein</code>, <code>#termine</code> ...)</li>
+      <li>Tipps & Tricks aus der Praxis</li>
+      <li>Häufige Stolperfallen und wie du sie vermeidest</li>
+    </ul>
+    <p>Wir bereiten gerade alle Inhalte vor — und werden sie hier sofort verfügbar machen, sobald sie fertig sind.</p>
+    <p style="margin-top:32px;">Bis dahin: <a href="https://wa.me/491794169592?text=Hallo%2C%20ich%20habe%20eine%20Frage%20zu%20Nova" target="_blank" rel="noopener">Schreib mir direkt auf WhatsApp</a> — ich helfe dir persönlich.</p>
+  </div>
+</div>
+
+<div class="page-overlay" id="roadmapOverlay">
+  <div class="overlay-content">
+    <h1>Roadmap</h1>
+    <p class="kommt-bald-pill">Kommt bald</p>
+    <p>Nova ist aktuell in der Beta-Phase und wächst Schritt für Schritt — gemeinsam mit den Damen, die sie nutzen.</p>
+
+    <h2>Bereits verfügbar</h2>
+    <ul>
+      <li>Nova führt jeden Chat von der ersten Nachricht bis zum fertigen Terminvorschlag</li>
+      <li>WhatsApp-Befehle für Pause, Übersicht und schnelle Bestätigung</li>
+      <li>Persönliches Dashboard mit Terminen, Kunden und Statistiken</li>
+      <li>Persönliche Betreuung beim Einrichten</li>
+    </ul>
+
+    <h2>In Arbeit</h2>
+    <ul>
+      <li>Mehr Sprachen (Englisch, Italienisch)</li>
+      <li>Multi-Plattform: Anfragen von verschiedenen Seiten in einem WhatsApp</li>
+      <li>Detaillierte Statistiken & Wochenberichte</li>
+      <li>Video-Tutorials & komplette Anleitungs-Bibliothek</li>
+      <li>Mobile App für unterwegs</li>
+    </ul>
+
+    <h2>Du hast eine Idee?</h2>
+    <p>Sag uns, was dir fehlt oder was wir besser machen können — wir entwickeln Nova für dich, nicht für uns.</p>
+    <p><a href="https://wa.me/491794169592?text=Hallo%2C%20ich%20habe%20einen%20Vorschlag%20f%C3%BCr%20Nova" target="_blank" rel="noopener">Schreib mir deinen Vorschlag direkt auf WhatsApp →</a></p>
+
+    <p class="small">Stand: Mai 2026 — diese Liste wächst regelmäßig.</p>
+  </div>
+</div>
+
+<!-- === LOGIN OVERLAY === -->
+<div class="page-overlay login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="logo/enzo%20logo%20bjeli%20transparent.png" alt="ServiceReply">
+    </div>
+    <h1>Willkommen zurück</h1>
+    <p class="login-sub">Melde dich an, um zu deinem Dashboard zu kommen.</p>
+    <form class="login-form" onsubmit="return false;">
+      <label>
+        <span>E-Mail</span>
+        <input type="email" autocomplete="email" placeholder="deine@email.de">
+      </label>
+      <label>
+        <span>Passwort</span>
+        <input type="password" autocomplete="current-password" placeholder="••••••••">
+      </label>
+      <button type="submit" class="login-btn">Anmelden</button>
+    </form>
+    <div class="login-links">
+      <a href="#">Passwort vergessen?</a>
+      <a href="#demo" data-overlay-close>Noch kein Konto? <span>Jetzt kostenlos starten →</span></a>
+    </div>
+  </div>
+</div>
+
+<div class="page-overlay" id="impressumOverlay">
+  <div class="overlay-content">
+    <h1>Impressum</h1>
+    <p>Angaben gemäß § 5 TMG</p>
+
+    <h2>Anbieter</h2>
+    <p>
+      Kristijan Baric<br>
+      ServiceReply.de<br>
+      Anton-Böck-Str. 34<br>
+      81249 München<br>
+      Deutschland
+    </p>
+
+    <h2>Kontakt</h2>
+    <p>
+      Telefon: +49 179 4169592<br>
+      E-Mail: <a href="mailto:info@servicereply.de">info@servicereply.de</a>
+    </p>
+
+    <h2>Umsatzsteuer</h2>
+    <p>Gemäß § 19 Abs. 1 UStG (Kleinunternehmerregelung) wird keine Umsatzsteuer berechnet und ausgewiesen.</p>
+
+    <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
+    <p>Kristijan Baric, Anschrift wie oben.</p>
+
+    <h2>Haftungsausschluss</h2>
+    <p>Die Inhalte dieser Website wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr übernommen werden. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.</p>
+
+    <h2>Haftung für Links</h2>
+    <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+
+    <h2>Urheberrecht</h2>
+    <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechts bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+  </div>
+</div>
+
+<div class="page-overlay" id="datenschutzOverlay">
+  <div class="overlay-content">
+    <h1>Datenschutzerklärung</h1>
+
+    <h2>1. Verantwortlicher</h2>
+    <p>
+      Kristijan Baric<br>
+      Anton-Böck-Str. 34<br>
+      81249 München<br>
+      E-Mail: <a href="mailto:info@servicereply.de">info@servicereply.de</a>
+    </p>
+
+    <h2>2. Erhebung und Speicherung personenbezogener Daten</h2>
+    <p>Wenn du unsere Website besuchst, werden automatisch Informationen vom Browser an unseren Server übermittelt und temporär in einer Logdatei gespeichert. Folgende Daten werden ohne dein Zutun erfasst und bis zur automatisierten Löschung gespeichert:</p>
+    <ul>
+      <li>IP-Adresse des anfragenden Geräts</li>
+      <li>Datum und Uhrzeit des Zugriffs</li>
+      <li>Name und URL der abgerufenen Datei</li>
+      <li>Website, von der aus der Zugriff erfolgt (Referrer-URL)</li>
+      <li>Verwendeter Browser und ggf. das Betriebssystem</li>
+    </ul>
+    <p>Die genannten Daten werden zur Gewährleistung eines reibungslosen Verbindungsaufbaus und einer komfortablen Nutzung der Website sowie zur Auswertung der Systemsicherheit und -stabilität verarbeitet.</p>
+
+    <h2>3. Weitergabe an Dritte</h2>
+    <p>Eine Übermittlung deiner personenbezogenen Daten an Dritte zu anderen als den nachfolgend aufgeführten Zwecken findet nicht statt.</p>
+
+    <h2>4. Hosting & Server-Standort</h2>
+    <p>Unsere Website und alle Nova-Dienste werden auf Servern in Deutschland gehostet. Eine Übermittlung deiner Daten in Länder außerhalb der EU findet nicht statt.</p>
+
+    <h2>5. WhatsApp-Integration (Nova)</h2>
+    <p>Wenn du Nova nutzt, werden Nachrichten zwischen dir, deinen Kunden und Nova über die WhatsApp Business API verarbeitet. Diese Daten werden verschlüsselt und ausschließlich zum Zweck der Beantwortung von Kundenanfragen, der Terminvereinbarung und der Statistikführung in deinem Dashboard verwendet. Die Daten werden auf unseren Servern in Deutschland gespeichert.</p>
+
+    <h2>6. Cookies</h2>
+    <p>Diese Website verwendet keine Tracking- oder Marketing-Cookies. Es werden ausschließlich technisch notwendige Cookies eingesetzt, die für den Betrieb der Seite erforderlich sind.</p>
+
+    <h2>7. Deine Rechte</h2>
+    <p>Du hast jederzeit das Recht:</p>
+    <ul>
+      <li>Auskunft über deine bei uns gespeicherten Daten zu erhalten (Art. 15 DSGVO)</li>
+      <li>Die Berichtigung unrichtiger Daten zu verlangen (Art. 16 DSGVO)</li>
+      <li>Die Löschung deiner Daten zu verlangen (Art. 17 DSGVO)</li>
+      <li>Die Einschränkung der Verarbeitung zu verlangen (Art. 18 DSGVO)</li>
+      <li>Der Verarbeitung zu widersprechen (Art. 21 DSGVO)</li>
+      <li>Datenübertragbarkeit zu verlangen (Art. 20 DSGVO)</li>
+    </ul>
+    <p>Schreib uns dazu eine E-Mail an <a href="mailto:info@servicereply.de">info@servicereply.de</a>.</p>
+
+    <h2>8. Beschwerderecht</h2>
+    <p>Du hast das Recht, dich bei einer Datenschutzaufsichtsbehörde zu beschweren, wenn du der Auffassung bist, dass die Verarbeitung deiner personenbezogenen Daten gegen die DSGVO verstößt.</p>
+
+    <h2>9. Änderungen dieser Datenschutzerklärung</h2>
+    <p>Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht. Die aktuelle Version ist immer auf dieser Seite einsehbar.</p>
+
+    <p class="small">Stand: Mai 2026</p>
+  </div>
+</div>
+
+<script>
+// === HAMBURGER + main fade out ===
+const menuBtn = document.getElementById('menuBtn');
+const menuOverlay = document.getElementById('menuOverlay');
+menuBtn.addEventListener('click', () => {
+  const isOpen = menuBtn.classList.toggle('open');
+  menuOverlay.classList.toggle('open', isOpen);
+  document.body.classList.toggle('menu-open', isOpen);
+});
+menuOverlay.querySelectorAll('[data-close]').forEach(a => {
+  a.addEventListener('click', () => {
+    menuBtn.classList.remove('open');
+    menuOverlay.classList.remove('open');
+    document.body.classList.remove('menu-open');
+  });
+});
+
+// === Person SVG avatar u svaku .av (phone chat lista) ===
+const PERSON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>';
+document.querySelectorAll('.phone-wrap .av').forEach(el => { el.innerHTML = PERSON_SVG; });
+
+// === FADE-IN ===
+const heroFades = document.querySelectorAll('.hero .fade');
+heroFades.forEach((el, i) => {
+  setTimeout(() => el.classList.add('in'), 200 + i * 150);
+});
+const fades = document.querySelectorAll('section:not(.hero) .fade');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+fades.forEach(el => io.observe(el));
+
+// === Scroll dots — aktivni dot prati trenutnu sekciju ===
+(() => {
+  const dots = document.querySelectorAll('.scroll-dot');
+  const sectionIds = Array.from(dots).map(d => d.dataset.section);
+  const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+  if (!sections.length) return;
+
+  const setActive = (id) => {
+    dots.forEach(d => d.classList.toggle('active', d.dataset.section === id));
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) setActive(entry.target.id);
+    });
+  }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
+})();
+
+// === Logo rotate na klik ===
+document.querySelector('.brand-logo')?.addEventListener('click', (e) => {
+  const logo = e.currentTarget;
+  logo.classList.remove('spin');
+  void logo.offsetWidth; // restart animation
+  logo.classList.add('spin');
+  setTimeout(() => logo.classList.remove('spin'), 700);
+});
+
+// === Page overlay (Impressum/Datenschutz) ===
+function closeAllOverlays() {
+  document.querySelectorAll('.page-overlay.open').forEach(o => o.classList.remove('open'));
+  document.body.classList.remove('overlay-open');
+  if (['#impressum', '#datenschutz', '#dokumentation', '#roadmap', '#anmelden'].includes(window.location.hash)) {
+    history.replaceState(null, '', window.location.pathname);
+  }
+}
+function openOverlay(id) {
+  closeAllOverlays();
+  const el = document.getElementById(id);
+  if (!el) return;
+  // zatvori hamburger ako je otvoren
+  document.querySelector('.menu-btn')?.classList.remove('open');
+  document.querySelector('.menu-overlay')?.classList.remove('open');
+  document.body.classList.remove('menu-open');
+  el.classList.add('open');
+  document.body.classList.add('overlay-open');
+  el.scrollTop = 0;
+}
+document.querySelectorAll('[data-overlay-target]').forEach(opener => {
+  opener.addEventListener('click', (e) => {
+    e.preventDefault();
+    const id = opener.getAttribute('data-overlay-target');
+    history.replaceState(null, '', opener.getAttribute('href'));
+    openOverlay(id);
+  });
+});
+document.querySelectorAll('[data-overlay-close]').forEach(closer => {
+  closer.addEventListener('click', closeAllOverlays);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeAllOverlays();
+});
+// Auto-open on page load if URL has hash
+const hashToOverlay = {
+  '#impressum': 'impressumOverlay',
+  '#datenschutz': 'datenschutzOverlay',
+  '#dokumentation': 'dokumentationOverlay',
+  '#roadmap': 'roadmapOverlay',
+  '#anmelden': 'loginOverlay'
+};
+if (hashToOverlay[window.location.hash]) openOverlay(hashToOverlay[window.location.hash]);
+
+// === FAQ auto-close nakon 2 min od otvaranja ===
+document.querySelectorAll('.faq-item').forEach(item => {
+  let timer = null;
+  item.addEventListener('toggle', () => {
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (item.open) {
+      timer = setTimeout(() => { item.open = false; }, 120000);
+    }
+  });
+});
+
+// === SHADER (v1, topla paleta, sporo 0.20×) ===
+(() => {
+  const canvas = document.getElementById('bg');
+  const errBox = document.getElementById('err');
+  function showErr(msg) { errBox.style.display = 'block'; errBox.textContent = 'GRESKA: ' + msg; console.error(msg); }
+  let gl = canvas.getContext('webgl2', { antialias: false, alpha: false, powerPreference: 'low-power' });
+  let isWebGL2 = !!gl;
+  if (!gl) gl = canvas.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' });
+  if (!gl) { showErr('WebGL nije podrzan.'); return; }
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  const dprCap = isMobile ? 1.0 : 1.5;
+  const LAYERS = isMobile ? 3 : 4;
+
+  const vertSrc2 = `#version 300 es
+    in vec2 a_pos; void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }`;
+  const fragSrc2 = `#version 300 es
+    precision highp float; out vec4 outColor;
+    uniform vec2 iResolution; uniform float iTime;
+    float distLine(vec2 p, vec2 a, vec2 b) { vec2 ap=p-a; vec2 ab=b-a; float d=clamp(dot(ap,ab)/dot(ab,ab),0.0,1.0); return length(ap-ab*d); }
+    float drawLine(vec2 uv, vec2 a, vec2 b) { float line=smoothstep(0.014,0.01,distLine(uv,a,b)); float dist=length(b-a); return line*(smoothstep(1.3,0.8,dist)*0.5+smoothstep(0.04,0.03,abs(dist-0.75))); }
+    float n21(vec2 i){i+=fract(i*vec2(223.64,823.12));i+=dot(i,i+23.14);return fract(i.x*i.y);}
+    vec2 n22(vec2 i){float x=n21(i);return vec2(x,n21(i+x));}
+    vec2 getPoint(vec2 id, vec2 offset){return offset+sin(n22(id+offset)*iTime)*0.4;}
+    float layer(vec2 uv){
+      float m=0.0; float t=iTime*2.0;
+      vec2 gv=fract(uv)-0.5; vec2 id=floor(uv)-0.5;
+      vec2 p[9]; int idx=0;
+      for(float y=-1.0;y<=1.0;y++){for(float x=-1.0;x<=1.0;x++){p[idx++]=getPoint(id,vec2(x,y));}}
+      for(int i=0;i<9;i++){
+        m+=drawLine(gv,p[4],p[i]);
+        float sparkle=1.0/pow(length(gv-p[i]),1.5)*0.005;
+        m+=sparkle*(sin(t+fract(p[i].x)*12.23)*0.4+0.6);
+      }
+      m+=drawLine(gv,p[1],p[3]); m+=drawLine(gv,p[1],p[5]);
+      m+=drawLine(gv,p[7],p[3]); m+=drawLine(gv,p[7],p[5]);
+      return m;
+    }
+    void main(){
+      vec2 fragCoord=gl_FragCoord.xy;
+      vec2 uv=(fragCoord-0.5*iResolution.xy)/iResolution.y;
+      vec3 c = sin(iTime * 2.0 * vec3(.234, .324, .768)) * vec3(0.4, 0.35, 0.12) + vec3(0.6, 0.55, 0.22);
+      vec3 col=vec3(0); float fft=sin(iTime*0.7)*0.25+0.5;
+      c.x+=(uv.x+0.5);
+      col+=pow(-uv.y+0.5,5.0)*fft*c;
+      float m=0.0; float xr=sin(iTime*0.1); float yr=cos(iTime*0.2);
+      mat2 rotMat=mat2(xr,yr,-yr,xr); uv*=rotMat;
+      for(float i=0.0;i<=1.0;i+=1.0/__LAYERS__){
+        float z=fract(i+iTime*0.05);
+        float size=mix(15.0,0.1,z)*1.50;
+        float fade=smoothstep(0.0,1.0,z)*smoothstep(1.0,0.9,z);
+        m+=layer((size*uv)+i*10.0)*fade;
+      }
+      col+=m*c;
+      outColor=vec4(col,1.0);
+    }
+  `.replace('__LAYERS__', LAYERS.toFixed(1));
+
+  const vertSrc1 = `attribute vec2 a_pos; void main(){gl_Position=vec4(a_pos,0.0,1.0);}`;
+  const fragSrc1 = `
+    precision highp float;
+    uniform vec2 iResolution; uniform float iTime;
+    float distLine(vec2 p, vec2 a, vec2 b){vec2 ap=p-a;vec2 ab=b-a;float d=clamp(dot(ap,ab)/dot(ab,ab),0.0,1.0);return length(ap-ab*d);}
+    float drawLine(vec2 uv, vec2 a, vec2 b){float line=smoothstep(0.014,0.01,distLine(uv,a,b));float dist=length(b-a);return line*(smoothstep(1.3,0.8,dist)*0.5+smoothstep(0.04,0.03,abs(dist-0.75)));}
+    float n21(vec2 i){i+=fract(i*vec2(223.64,823.12));i+=dot(i,i+23.14);return fract(i.x*i.y);}
+    vec2 n22(vec2 i){float x=n21(i);return vec2(x,n21(i+x));}
+    vec2 getPoint(vec2 id, vec2 offset){return offset+sin(n22(id+offset)*iTime)*0.4;}
+    float layer(vec2 uv){
+      float m=0.0; float t=iTime*2.0;
+      vec2 gv=fract(uv)-0.5; vec2 id=floor(uv)-0.5;
+      vec2 center=getPoint(id,vec2(0.0,0.0));
+      for(int yi=-1;yi<=1;yi++){for(int xi=-1;xi<=1;xi++){
+        vec2 off=vec2(float(xi),float(yi)); vec2 pt=getPoint(id,off);
+        m+=drawLine(gv,center,pt);
+        float sparkle=1.0/pow(length(gv-pt),1.5)*0.005;
+        m+=sparkle*(sin(t+fract(pt.x)*12.23)*0.4+0.6);
+      }}
+      vec2 p1=getPoint(id,vec2(-1.0,0.0)); vec2 p3=getPoint(id,vec2(0.0,-1.0));
+      vec2 p5=getPoint(id,vec2(0.0,1.0)); vec2 p7=getPoint(id,vec2(1.0,0.0));
+      m+=drawLine(gv,p1,p3); m+=drawLine(gv,p1,p5);
+      m+=drawLine(gv,p7,p3); m+=drawLine(gv,p7,p5);
+      return m;
+    }
+    void main(){
+      vec2 fragCoord=gl_FragCoord.xy;
+      vec2 uv=(fragCoord-0.5*iResolution.xy)/iResolution.y;
+      vec3 c = sin(iTime * 2.0 * vec3(.234, .324, .768)) * vec3(0.4, 0.35, 0.12) + vec3(0.6, 0.55, 0.22);
+      vec3 col=vec3(0.0); float fft=sin(iTime*0.7)*0.25+0.5;
+      c.x+=(uv.x+0.5);
+      col+=pow(-uv.y+0.5,5.0)*fft*c;
+      float m=0.0; float xr=sin(iTime*0.1); float yr=cos(iTime*0.2);
+      mat2 rotMat=mat2(xr,yr,-yr,xr); uv*=rotMat;
+      for(float i=0.0;i<=1.0;i+=1.0/__LAYERS__){
+        float z=fract(i+iTime*0.05);
+        float size=mix(15.0,0.1,z)*1.50;
+        float fade=smoothstep(0.0,1.0,z)*smoothstep(1.0,0.9,z);
+        m+=layer((size*uv)+i*10.0)*fade;
+      }
+      col+=m*c;
+      gl_FragColor=vec4(col,1.0);
+    }
+  `.replace('__LAYERS__', LAYERS.toFixed(1));
+
+  const vertSrc = isWebGL2 ? vertSrc2 : vertSrc1;
+  const fragSrc = isWebGL2 ? fragSrc2 : fragSrc1;
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { showErr((type===gl.VERTEX_SHADER?'V':'F')+':\n'+gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+  const vs = compile(gl.VERTEX_SHADER, vertSrc);
+  const fs = compile(gl.FRAGMENT_SHADER, fragSrc);
+  if (!vs || !fs) return;
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { showErr('Link: '+gl.getProgramInfoLog(prog)); return; }
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const aPos = gl.getAttribLocation(prog, 'a_pos');
+  gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+  const uRes = gl.getUniformLocation(prog, 'iResolution');
+  const uTime = gl.getUniformLocation(prog, 'iTime');
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
+    const w = Math.max(1, Math.floor(window.innerWidth * dpr));
+    const h = Math.max(1, Math.floor(window.innerHeight * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+  }
+  window.addEventListener('resize', resize); resize();
+  const start = performance.now();
+  let visible = true;
+  document.addEventListener('visibilitychange', () => { visible = !document.hidden; });
+  function render() {
+    if (visible) {
+      const t = (performance.now() - start) / 1000;
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, t * 0.20);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    requestAnimationFrame(render);
+  }
+  render();
+})();
+</script>
+
+<!-- === Hero chat scroll (auto-scroll lista poruka — problem demo) === -->
+<script>
+(function() {
+  const wrap = document.querySelector('.chat-scroll-wrap');
+  const scroller = document.getElementById('heroChatScroll');
+  if (!wrap || !scroller) return;
+
+  // Dupliciraj sadrzaj za seamless loop
+  scroller.innerHTML += scroller.innerHTML;
+
+  let pos = 0;
+  let paused = false;
+  let lastTs = 0;
+  const SPEED = 0.020; // px per ms — sporo, citljivo
+  let resumeTimer = null;
+  const AUTO_RESUME_MS = 60000;
+
+  function getHalfHeight() {
+    return scroller.scrollHeight / 2;
+  }
+
+  function frame(ts) {
+    if (!paused) {
+      if (lastTs) {
+        const dt = ts - lastTs;
+        pos += SPEED * dt;
+        const half = getHalfHeight();
+        if (pos >= half) pos -= half;
+        scroller.style.transform = 'translateY(' + (-pos) + 'px)';
+      }
+      lastTs = ts;
+    } else {
+      lastTs = 0;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  function setPaused(v) {
+    paused = v;
+    wrap.classList.toggle('paused', paused);
+    if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+    if (paused) resumeTimer = setTimeout(() => setPaused(false), AUTO_RESUME_MS);
+  }
+  wrap.addEventListener('click', () => setPaused(!paused));
+})();
+</script>
+
+<!-- === Die Lösung chat animation === -->
+<script>
+(function() {
+  const sec = document.getElementById('solution');
+  const body = document.getElementById('chatBody');
+  const nameEl = document.getElementById('chatName');
+  const statusEl = document.getElementById('chatStatus');
+  const avatarEl = document.getElementById('chatAvatar');
+  if (!sec || !body || !nameEl) return;
+
+  const KUNDE = { name: '+49 173 9264 416', initial: 'K', cls: '' };
+  const NOVA  = { name: 'Nova',         initial: 'N', cls: 'nova' };
+
+  // Poruke Faze 1 izdvojene da ih mozemo "vratiti" u Fazi 3
+  const phase1Messages = [
+    { dir: 'in',  text: 'Hi, hab dein Profil gesehen. Bist du Freitag frei?' },
+    { dir: 'out', text: 'Hey 💋 Ja, ich hab Zeit. Wie lange willst du denn bleiben?' },
+    { dir: 'in',  text: '2 Stunden wären super. Was kostet das?' },
+    { dir: 'out', text: '260 € für 2h. Wann passt es dir?' },
+    { dir: 'in',  text: 'Geht 19 Uhr?' },
+    { dir: 'out', text: 'Freitag 19:00 ist noch frei. Hab dich vorgemerkt — warte kurz auf meine Bestätigung ✨' }
+  ];
+
+  const script = [
+    { type: 'header', who: KUNDE },
+    { type: 'wait', ms: 700 },
+
+    // FAZA 1 — Kunde chat
+    { type: 'msg', dir: 'in',  text: phase1Messages[0].text },
+    { type: 'wait', ms: 700 },
+    { type: 'typing', dir: 'out', ms: 1300 },
+    { type: 'msg', dir: 'out', text: phase1Messages[1].text },
+    { type: 'wait', ms: 1200 },
+    { type: 'msg', dir: 'in',  text: phase1Messages[2].text },
+    { type: 'wait', ms: 700 },
+    { type: 'typing', dir: 'out', ms: 1100 },
+    { type: 'msg', dir: 'out', text: phase1Messages[3].text },
+    { type: 'wait', ms: 1100 },
+    { type: 'msg', dir: 'in',  text: phase1Messages[4].text },
+    { type: 'wait', ms: 700 },
+    { type: 'typing', dir: 'out', ms: 1400 },
+    { type: 'msg', dir: 'out', text: phase1Messages[5].text },
+    { type: 'wait', ms: 2600 },
+
+    // Transition 1 → 2 (header se mijenja u Nova)
+    { type: 'clear' },
+    { type: 'header', who: NOVA },
+    { type: 'wait', ms: 900 },
+
+    // FAZA 2 — Nova → Cura
+    { type: 'typing', dir: 'in', ms: 1400 },
+    { type: 'msg', dir: 'in', system: true, html:
+        '<div class="sys-line">📅 <b>Freitag, 19:00</b></div>' +
+        '<div class="sys-line">⏱ 2 Stunden</div>' +
+        '<div class="sys-line">💰 260 €</div>' +
+        '<div class="sys-line">👤 Kunde: +49 173 ****</div>' +
+        '<div class="sys-cta">Bestätigen mit <b>#ja</b> / <b>#nein</b></div>'
+    },
+    { type: 'wait', ms: 3200 },
+    // Cura otvara tastaturu i kuca "#ja"
+    { type: 'keyboard-type', text: '#ja' },
+    { type: 'msg', dir: 'out', text: '#ja' },
+    { type: 'wait', ms: 3000 },
+
+    // Transition 2 → 3 (nazad u Kunde chat — vraćamo cijelu istoriju)
+    { type: 'clear' },
+    { type: 'header', who: KUNDE },
+    { type: 'wait', ms: 700 },
+    { type: 'restore', msgs: phase1Messages },
+    { type: 'wait', ms: 1400 },
+
+    // FAZA 3 — Bestätigung Kunde-u (na kraju starog chata)
+    { type: 'typing', dir: 'out', ms: 1500 },
+    { type: 'msg', dir: 'out', html:
+        'Perfekt, dein Termin ist bestätigt! 🎉<br>' +
+        '📅 Freitag, 19:00 · 2 Stunden<br>' +
+        '📍 Max-Mustermann-Str. 69, München<br><br>' +
+        'Freu mich auf dich! 💋'
+    },
+
+    // 30s pauza da cura moze procitati cijeli ciklus
+    { type: 'wait', ms: 30000 },
+
+    // Restart loop
+    { type: 'clear' },
+    { type: 'wait', ms: 600 }
+  ];
+
+  function setHeader(who) {
+    nameEl.textContent = who.name;
+    statusEl.textContent = 'online';
+    avatarEl.textContent = who.initial;
+    avatarEl.className = 'chat-avatar' + (who.cls ? ' ' + who.cls : '');
+  }
+  function addMsg(step) {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + step.dir + (step.system ? ' system' : '');
+    if (step.html) div.innerHTML = step.html;
+    else div.textContent = step.text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+  }
+  function addTyping(dir) {
+    const div = document.createElement('div');
+    div.className = 'chat-msg typing' + (dir === 'out' ? ' out-typing' : '');
+    div.innerHTML = '<span></span><span></span><span></span>';
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    return div;
+  }
+
+  let running = false;
+  let paused = false;
+  function rawSleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  async function sleep(ms) {
+    let remaining = ms;
+    while (remaining > 0) {
+      while (paused) await rawSleep(80);
+      const chunk = Math.min(remaining, 200);
+      await rawSleep(chunk);
+      remaining -= chunk;
+    }
+  }
+
+  // Pause/resume kontrole
+  const playBtn = document.getElementById('chatPlayBtn');
+  const chatScreen = sec.querySelector('.chat-screen');
+  let autoResumeTimer = null;
+  const AUTO_RESUME_MS = 60000;
+  function setPaused(v) {
+    paused = v;
+    if (playBtn) {
+      playBtn.textContent = paused ? '▶' : '⏸';
+      playBtn.setAttribute('aria-label', paused ? 'Play' : 'Pause');
+    }
+    if (chatScreen) chatScreen.classList.toggle('paused', paused);
+    if (autoResumeTimer) { clearTimeout(autoResumeTimer); autoResumeTimer = null; }
+    if (paused) {
+      autoResumeTimer = setTimeout(() => setPaused(false), AUTO_RESUME_MS);
+    }
+  }
+  function togglePause() { setPaused(!paused); }
+  if (playBtn) {
+    playBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePause(); });
+  }
+  if (chatScreen) {
+    chatScreen.addEventListener('click', togglePause);
+  }
+
+  async function typeOnKeyboard(text) {
+    const kb = document.getElementById('chatKeyboard');
+    const inputText = document.querySelector('.chat-input-text');
+    const inputBox = document.querySelector('.chat-input');
+    if (!kb || !inputText) { await sleep(800); return; }
+    const original = inputText.textContent;
+    inputBox.classList.add('typing-active');
+    kb.classList.add('show');
+    await sleep(550);
+    inputText.textContent = '';
+    for (let i = 0; i < text.length; i++) {
+      inputText.textContent += text[i];
+      // simulate finger tap on the matching key
+      const key = kb.querySelector('[data-k="' + text[i].toLowerCase() + '"]');
+      if (key) {
+        key.classList.add('pressed');
+        setTimeout(() => key.classList.remove('pressed'), 140);
+      }
+      await sleep(260);
+    }
+    await sleep(700);
+    kb.classList.remove('show');
+    await sleep(450);
+    inputText.textContent = original;
+    inputBox.classList.remove('typing-active');
+  }
+
+  async function loop() {
+    let i = 0;
+    while (running) {
+      const step = script[i];
+      if (!step) { i = 0; continue; }
+      if (step.type === 'header')      setHeader(step.who);
+      else if (step.type === 'wait')   await sleep(step.ms);
+      else if (step.type === 'clear')  body.innerHTML = '';
+      else if (step.type === 'msg')    { addMsg(step); await sleep(450); }
+      else if (step.type === 'restore') {
+        body.innerHTML = '';
+        step.msgs.forEach(m => addMsg({ dir: m.dir, text: m.text }));
+        body.scrollTop = body.scrollHeight;
+      }
+      else if (step.type === 'typing') {
+        const t = addTyping(step.dir);
+        await sleep(step.ms);
+        t.remove();
+      }
+      else if (step.type === 'keyboard-type') {
+        await typeOnKeyboard(step.text);
+      }
+      i = (i + 1) % script.length;
+    }
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !running) {
+        running = true;
+        loop();
+      }
+    });
+  }, { threshold: 0.3 });
+  io.observe(sec);
+})();
+</script>
+
+<div class="wa-tooltip" id="waTooltip" role="status" aria-live="polite">
+  <div class="wa-tooltip-bubble">Hey, frag mich alles 👋</div>
+  <div class="wa-tooltip-dots">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<a class="wa-fab"
+   href="https://wa.me/491794169592?text=Hallo%2C%20ich%20habe%20eine%20Frage%20zu%20ServiceReply"
+   target="_blank" rel="noopener noreferrer"
+   aria-label="Schreib uns auf WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12.05 21.785h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 11.985 0C5.443 0 .117 5.335.115 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.892-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+    <g transform="translate(12 12) scale(0.88) translate(-12 -12)">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347Z"/>
+    </g>
+  </svg>
+</a>
+
+<script>
+  (function() {
+    const tooltip = document.getElementById('waTooltip');
+    if (!tooltip) return;
+    const MAX_CYCLES = 3;
+    const FIRST_DELAY = 4500;
+    const DOTS_DURATION = 1600;
+    const VISIBLE_DURATION = 9500;
+    const PAUSE = 25000;
+    let cycle = 0;
+
+    function runCycle() {
+      if (cycle >= MAX_CYCLES) return;
+      cycle++;
+      tooltip.classList.add('show');
+      setTimeout(() => tooltip.classList.add('text-ready'), DOTS_DURATION);
+      setTimeout(() => {
+        tooltip.classList.remove('show');
+        setTimeout(() => tooltip.classList.remove('text-ready'), 400);
+      }, DOTS_DURATION + VISIBLE_DURATION);
+      setTimeout(runCycle, DOTS_DURATION + VISIBLE_DURATION + PAUSE);
+    }
+
+    setTimeout(runCycle, FIRST_DELAY);
+  })();
+</script>
+</body>
 </html>
