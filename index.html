@@ -261,6 +261,12 @@
   .menu-btn.open span:nth-child(2) { opacity: 0; }
   .menu-btn.open span:nth-child(3) { transform: translateY(-11px) rotate(-45deg); }
 
+  /* Mobile: smaller logo + hamburger, pushed to edges */
+  @media (max-width: 600px) {
+    .brand-logo { top: 10px; left: 8px;  width: 56px; height: 56px; }
+    .menu-btn   { top: 14px; right: 10px; width: 32px; height: 24px; }
+  }
+
   /* Fullscreen menu — BEZ pozadine, samo bjela slova preko shader-a */
   .menu-overlay {
     position: fixed; inset: 0; z-index: 200;
@@ -1284,7 +1290,7 @@
   .wa-fab:active{ transform:scale(.97); }
   .wa-fab:focus-visible{outline:3px solid #fff;outline-offset:3px}
   @media (max-width:600px){
-    .wa-fab{--s:56px;right:20px;bottom:32px}
+    .wa-fab{--s:56px;right:12px;bottom:18px}
   }
 
   /* === WhatsApp oblačić (tooltip) — typing dots + tekst === */
@@ -1356,16 +1362,16 @@
   body.overlay-open .wa-tooltip,
   body.menu-open .wa-tooltip { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
   @media (max-width:600px) {
-    /* Na mobitelu: bubble ide direktno iznad WhatsApp ikone (centrirano s njom), bez dijagonalnih tackica */
+    /* Na mobitelu: manji bubble, dolje-desno bliže WhatsApp ikoni */
     .wa-tooltip {
-      right: 12px;
-      bottom: 100px;
+      right: 4px;
+      bottom: 74px;
       align-items: flex-end;
       gap: 0;
     }
     .wa-tooltip-bubble {
-      font-size: 0.8rem; padding: 9px 14px;
-      margin-right: 4px;
+      font-size: 0.72rem; padding: 7px 12px;
+      margin-right: 2px;
     }
     .wa-tooltip-dots { display: none; }
   }
