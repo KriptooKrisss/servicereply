@@ -45,98 +45,6 @@
   }
   .page-overlay.open { opacity: 1; pointer-events: auto; }
 
-  /* === Login overlay (Anmelden) — transparent, shader ostaje iza === */
-  .login-overlay {
-    background: transparent;
-    display: flex; align-items: center; justify-content: center;
-    padding: 80px 24px 60px;
-    overflow-y: auto;
-  }
-  .login-card {
-    width: 100%; max-width: 420px;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.22);
-    border-radius: 24px;
-    padding: 44px 36px 36px;
-    box-shadow: 0 0 80px -20px rgba(255,138,61,0.18);
-  }
-  .login-logo {
-    display: flex; justify-content: center;
-    margin-bottom: 24px;
-  }
-  .login-logo img {
-    width: 64px; height: 64px;
-    opacity: 0.95;
-  }
-  .login-card h1 {
-    font-size: clamp(1.7rem, 3vw, 2.2rem);
-    font-weight: 800; letter-spacing: -0.02em;
-    text-align: center; margin-bottom: 8px;
-    color: #fff;
-  }
-  .login-sub {
-    text-align: center;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 32px;
-    font-size: 0.92rem; line-height: 1.5;
-  }
-  .login-form {
-    display: flex; flex-direction: column; gap: 14px;
-  }
-  .login-form label {
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .login-form label span {
-    font-size: 0.78rem; color: rgba(255,255,255,0.7);
-    font-weight: 600; letter-spacing: 0.04em;
-  }
-  .login-form input {
-    width: 100%; padding: 13px 14px;
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 12px;
-    color: #fff; font-size: 1rem;
-    font-family: inherit;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .login-form input::placeholder { color: rgba(255,255,255,0.3); }
-  .login-form input:focus {
-    outline: none;
-    border-color: rgba(255,138,61,0.7);
-    background: rgba(255,138,61,0.04);
-  }
-  .login-btn {
-    width: 100%; padding: 14px;
-    background: linear-gradient(135deg, #ff8a3d, #e8401a);
-    border: none; border-radius: 12px;
-    color: #fff; font-size: 1rem; font-weight: 700;
-    cursor: pointer; margin-top: 12px;
-    box-shadow: 0 10px 26px -8px rgba(232,64,26,0.55);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
-    font-family: inherit;
-    letter-spacing: 0.01em;
-  }
-  .login-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 14px 30px -8px rgba(232,64,26,0.75);
-  }
-  .login-btn:active { transform: translateY(0); }
-  .login-links {
-    display: flex; flex-direction: column; gap: 12px;
-    margin-top: 26px;
-    text-align: center;
-    font-size: 0.88rem;
-  }
-  .login-links a {
-    color: rgba(255,255,255,0.55);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  .login-links a:hover { color: #fff; }
-  .login-links a span {
-    color: #ff8a3d; font-weight: 600; margin-left: 2px;
-  }
   .overlay-content {
     max-width: 760px; margin: 0 auto;
     color: #fff;
@@ -1416,7 +1324,7 @@
   <a href="#dokumentation" data-overlay-target="dokumentationOverlay">Dokumentation</a>
   <a href="#roadmap" data-overlay-target="roadmapOverlay">Roadmap</a>
   <a href="#impressum" data-overlay-target="impressumOverlay">Impressum</a>
-  <a href="#anmelden" data-overlay-target="loginOverlay" class="menu-cta">Anmelden</a>
+  <a href="https://app.servicereply.de/login" class="menu-cta">Anmelden</a>
   <div class="menu-footer">🇩🇪 Made in Germany</div>
 </nav>
 
@@ -1438,7 +1346,7 @@
         <a href="#ablauf" class="btn btn-ghost">So funktioniert Nova</a>
       </div>
       <div class="fade hero-login-link">
-        <a href="#anmelden" data-overlay-target="loginOverlay">Bereits Kundin? <span>Anmelden →</span></a>
+        <a href="https://app.servicereply.de/login">Bereits Kundin? <span>Anmelden →</span></a>
       </div>
       <div class="fade hero-stats">
         <div class="stat">
@@ -1883,31 +1791,6 @@
 </div>
 
 <!-- === LOGIN OVERLAY === -->
-<div class="page-overlay login-overlay" id="loginOverlay">
-  <div class="login-card">
-    <div class="login-logo">
-      <img src="logo/enzo%20logo%20bjeli%20transparent.png" alt="ServiceReply">
-    </div>
-    <h1>Willkommen zurück</h1>
-    <p class="login-sub">Melde dich an, um zu deinem Dashboard zu kommen.</p>
-    <form class="login-form" onsubmit="return false;">
-      <label>
-        <span>E-Mail</span>
-        <input type="email" autocomplete="email" placeholder="deine@email.de">
-      </label>
-      <label>
-        <span>Passwort</span>
-        <input type="password" autocomplete="current-password" placeholder="••••••••">
-      </label>
-      <button type="submit" class="login-btn">Anmelden</button>
-    </form>
-    <div class="login-links">
-      <a href="#">Passwort vergessen?</a>
-      <a href="#demo" data-overlay-close>Noch kein Konto? <span>Jetzt kostenlos starten →</span></a>
-    </div>
-  </div>
-</div>
-
 <div class="page-overlay" id="impressumOverlay">
   <div class="overlay-content">
     <h1>Impressum</h1>
@@ -2072,7 +1955,7 @@ document.querySelector('.brand-logo')?.addEventListener('click', (e) => {
 function closeAllOverlays() {
   document.querySelectorAll('.page-overlay.open').forEach(o => o.classList.remove('open'));
   document.body.classList.remove('overlay-open');
-  if (['#impressum', '#datenschutz', '#dokumentation', '#roadmap', '#anmelden'].includes(window.location.hash)) {
+  if (['#impressum', '#datenschutz', '#dokumentation', '#roadmap'].includes(window.location.hash)) {
     history.replaceState(null, '', window.location.pathname);
   }
 }
@@ -2107,8 +1990,7 @@ const hashToOverlay = {
   '#impressum': 'impressumOverlay',
   '#datenschutz': 'datenschutzOverlay',
   '#dokumentation': 'dokumentationOverlay',
-  '#roadmap': 'roadmapOverlay',
-  '#anmelden': 'loginOverlay'
+  '#roadmap': 'roadmapOverlay'
 };
 if (hashToOverlay[window.location.hash]) openOverlay(hashToOverlay[window.location.hash]);
 
