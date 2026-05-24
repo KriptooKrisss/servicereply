@@ -143,14 +143,23 @@
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s ease, opacity 0.2s ease;
   }
+  @keyframes brandLogoSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .brand-logo img {
     width: 100%; height: 100%; display: block; object-fit: contain;
     filter: drop-shadow(0 2px 6px rgba(0,0,0,0.75)) drop-shadow(0 0 14px rgba(255,255,255,0.18));
-    transition: transform 0.7s cubic-bezier(0.4, 0.0, 0.2, 1);
+    animation: brandLogoSpin 18s linear infinite;
+    transition: filter 0.3s;
   }
-  .brand-logo.spin img { transform: rotate(360deg); }
   .brand-logo:hover { transform: scale(1.06); }
   .brand-logo:active { transform: scale(0.96); }
+  body.shader-paused .brand-logo img { animation-play-state: paused; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.75)) grayscale(0.5) opacity(0.65); }
+  /* Onboarding hint pored loga (desktop) */
+  .brand-hint { position: fixed; top: 32px; left: 132px; height: 88px; display: flex; align-items: center; font-size: 12px; color: rgba(255,255,255,0.78); letter-spacing: 0.03em; pointer-events: none; opacity: 0; transition: opacity 0.4s ease; white-space: nowrap; z-index: 220; text-shadow: 0 2px 8px rgba(0,0,0,0.85); }
+  .brand-hint.show { opacity: 1; }
+  body.overlay-open .brand-hint, body.menu-open .brand-hint { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+  @media (max-width: 600px) {
+    .brand-hint { top: 10px; left: 72px; height: 56px; font-size: 11px; }
+  }
 
   .menu-btn {
     position: fixed; top: 48px; right: 36px; z-index: 220;
@@ -1291,7 +1300,8 @@
 <div id="err"></div>
 
 <!-- Hamburger -->
-<a class="brand-logo" href="#hero" aria-label="ServiceReply Home"><img src="logo/enzo%20logo%20bjeli%20transparent.png" alt="ServiceReply Logo"></a>
+<a class="brand-logo" href="#hero" aria-label="ServiceReply Home" title="Klick: Hintergrund pausieren / abspielen"><img src="logo/enzo%20logo%20bjeli%20transparent.png" alt="ServiceReply Logo"></a>
+<span class="brand-hint" id="brandHint">Pausiert</span>
 
 <nav class="scroll-dots" aria-label="Seitennavigation">
   <a href="#hero" class="scroll-dot active" data-section="hero" aria-label="Start"></a>
@@ -1942,14 +1952,7 @@ fades.forEach(el => io.observe(el));
   sections.forEach(s => observer.observe(s));
 })();
 
-// === Logo rotate na klik ===
-document.querySelector('.brand-logo')?.addEventListener('click', (e) => {
-  const logo = e.currentTarget;
-  logo.classList.remove('spin');
-  void logo.offsetWidth; // restart animation
-  logo.classList.add('spin');
-  setTimeout(() => logo.classList.remove('spin'), 700);
-});
+// (Stari spin-once handler obrisan — sad logo klik pauzira/pušta shader, handler je u shader scriptu gore)
 
 // === Page overlay (Impressum/Datenschutz) ===
 function closeAllOverlays() {
@@ -2139,9 +2142,42 @@ document.querySelectorAll('.faq-item').forEach(item => {
   const start = performance.now();
   let visible = true;
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; });
+
+  // === Pause/play state (localStorage persistent) ===
+  let paused = false;
+  let pauseAt = 0;
+  let pausedAcc = 0;
+  try { paused = localStorage.getItem('sr_shader_paused') === '1'; } catch(e) {}
+  if (paused) { document.body.classList.add('shader-paused'); pauseAt = performance.now(); }
+
+  function setShaderPaused(p) {
+    if (p === paused) return;
+    const now = performance.now();
+    if (p) { pauseAt = now; document.body.classList.add('shader-paused'); }
+    else { pausedAcc += (now - pauseAt); document.body.classList.remove('shader-paused'); }
+    paused = p;
+    try { localStorage.setItem('sr_shader_paused', p ? '1' : '0'); } catch(e) {}
+    const hint = document.getElementById('brandHint');
+    if (hint) { hint.textContent = p ? 'Pausiert' : 'Spielt'; hint.classList.add('show'); setTimeout(() => hint.classList.remove('show'), 1500); }
+  }
+
+  // Click handler na .brand-logo: pause toggle (zamjenjuje stari spin-once)
+  document.querySelector('.brand-logo')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    setShaderPaused(!paused);
+  });
+
+  // Onboarding: "Klick mich" pored loga, svaki page load, 5s pa fade out
+  const bh = document.getElementById('brandHint');
+  if (bh) {
+    bh.textContent = 'Klick mich';
+    requestAnimationFrame(() => bh.classList.add('show'));
+    setTimeout(() => { bh.classList.remove('show'); setTimeout(() => bh.textContent = 'Pausiert', 500); }, 5000);
+  }
+
   function render() {
     if (visible) {
-      const t = (performance.now() - start) / 1000;
+      const t = paused ? (pauseAt - start - pausedAcc) / 1000 : (performance.now() - start - pausedAcc) / 1000;
       gl.uniform2f(uRes, canvas.width, canvas.height);
       gl.uniform1f(uTime, t * 0.20);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
