@@ -209,9 +209,22 @@
   .menu-overlay a:hover, .menu-overlay a:active { opacity: 0.7; transform: scale(1.04); }
   .menu-overlay a.menu-cta {
     color: #ff8a3d;
-    text-shadow: 0 0 26px rgba(255,138,61,0.45), 0 4px 24px rgba(0,0,0,0.9);
+    padding: 10px 36px;
+    border: 1.5px solid rgba(255,138,61,0.55);
+    border-radius: 99px;
+    background: rgba(255,138,61,0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 0 32px -8px rgba(255,138,61,0.35);
+    text-shadow: 0 0 22px rgba(255,138,61,0.55), 0 4px 18px rgba(0,0,0,0.9);
+    margin-top: 6px;
   }
-  .menu-overlay a.menu-cta:hover { color: #ffa75f; opacity: 1; }
+  .menu-overlay a.menu-cta:hover {
+    color: #ffa75f; opacity: 1;
+    background: rgba(255,138,61,0.18);
+    border-color: rgba(255,138,61,0.85);
+    box-shadow: 0 0 44px -8px rgba(255,138,61,0.6);
+  }
   .menu-footer {
     position: absolute;
     bottom: 28px; left: 50%; transform: translateX(-50%);
@@ -1325,6 +1338,7 @@
     <a href="#hero" data-close class="menu-brand-main">ServiceReply.de</a>
     <div class="menu-brand-sub">NOVA</div>
   </div>
+  <a href="https://app.servicereply.de/login" class="menu-cta">Anmelden</a>
   <a href="#hero" data-close>Start</a>
   <a href="#problem" data-close>Das Problem</a>
   <a href="#solution" data-close>So funktioniert Nova</a>
@@ -1336,7 +1350,6 @@
   <a href="#dokumentation" data-overlay-target="dokumentationOverlay">Dokumentation</a>
   <a href="#roadmap" data-overlay-target="roadmapOverlay">Roadmap</a>
   <a href="#impressum" data-overlay-target="impressumOverlay">Impressum</a>
-  <a href="https://app.servicereply.de/login" class="menu-cta">Anmelden</a>
   <div class="menu-footer">🇩🇪 Made in Germany</div>
 </nav>
 
